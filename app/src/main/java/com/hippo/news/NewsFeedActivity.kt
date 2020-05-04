@@ -12,6 +12,6 @@ class NewsFeedActivity : AppCompatActivity() {
 
         // todo - testing okhttp async GET of top stories
         val newsFetch = HackerNewsFetcher()
-        newsFetch.fetchNews()
+        newsFetch.fetchNewsIds()
     }
 }

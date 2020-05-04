@@ -6,5 +6,5 @@ import okhttp3.*
 open class NewsFetcher {
     protected val client = OkHttpClient()
     protected val moshi = Moshi.Builder().build()
-    open fun fetchNews() {}
+    protected open fun fetchNewsIds() {}
 }

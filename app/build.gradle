@@ -19,11 +19,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField 'String', 'URL_HACKER_NEWS_BEST', "\"https://hacker-news.firebaseio.com/v0/beststories.json?\""
+            buildConfigField 'String', 'URL_HACKER_NEWS_TOP', "\"https://hacker-news.firebaseio.com/v0/topstories.json?\""
         }
 
         debug {
-            buildConfigField 'String', 'URL_HACKER_NEWS_BEST', "\"https://hacker-news.firebaseio.com/v0/beststories.json?\""
+            buildConfigField 'String', 'URL_HACKER_NEWS_TOP', "\"https://hacker-news.firebaseio.com/v0/topstories.json?\""
         }
     }
 }
