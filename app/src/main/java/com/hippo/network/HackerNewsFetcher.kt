@@ -33,7 +33,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                         // Convert the body to a String
                         // Convert the String into a List using comma separators
                         storyIds = JSONArray(storiesAsJson)
-                        Log.e("Test", "Story Ids length: ${storyIds!!.length()}")
+                        //Log.e("Test", "Story Ids length: ${storyIds!!.length()}")
                         fetchNewsItems(storyIds)
                     }
                 }
@@ -74,14 +74,12 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                                 val itemJsonStr = itemJson.toString()
                                 //Log.e("Test", "item Json: $itemJsonStr")
                                 results.add(itemJson)
-
                             } else {
                                 Log.e("Test", "Found an empty body")
                             }
 
-                            //Log.e("test", "size: ${results.size}")
                             if (results.size == storyIds.length()) {
-                                Log.e("Test", "Counts MATCH at: ${results.size}")
+                                //Log.e("Test", "Counts MATCH at: ${results.size}")
                                 // FULL RESULTS
                                 // return the full result list
                                 mCallback.onNewsAvailable(results)
