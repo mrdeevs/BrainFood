@@ -5,7 +5,6 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 28
 
-
     defaultConfig {
         applicationId "com.hippo.news"
         minSdkVersion 23
@@ -20,11 +19,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField 'String', 'URL_HACKER_NEWS_TOP', "\"https://hacker-news.firebaseio.com/v0/topstories.json?\""
+            buildConfigField 'String', 'URL_HACKER_NEWS_BEST', "\"https://hacker-news.firebaseio.com/v0/beststories.json?\""
         }
 
         debug {
-            buildConfigField 'String', 'URL_HACKER_NEWS_TOP', "\"https://hacker-news.firebaseio.com/v0/topstories.json?\""
+            buildConfigField 'String', 'URL_HACKER_NEWS_BEST', "\"https://hacker-news.firebaseio.com/v0/beststories.json?\""
         }
     }
 }
@@ -41,6 +40,9 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview-selection:1.1.0-rc01"
     // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.6.0")
+    // Moshi for JSON parsing
+    implementation("com.squareup.moshi:moshi:1.9.2")
+    // Unit testing
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
