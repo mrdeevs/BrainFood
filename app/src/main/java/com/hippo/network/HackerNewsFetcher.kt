@@ -5,10 +5,11 @@ import com.hippo.news.BuildConfig
 import okhttp3.*
 import okio.IOException
 import org.json.JSONArray
+import org.json.JSONObject
 
-class HackerNewsFetcher : NewsFetcher() {
+class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
 
-    public override fun fetchNews(callback: NewsListener) {
+    public override fun fetchNews() {
         // Builds a GET request to the top stories of
         // hacker news
         var storyIds: JSONArray?
@@ -16,7 +17,8 @@ class HackerNewsFetcher : NewsFetcher() {
             .url(BuildConfig.URL_HACKER_NEWS_TOP)
             .build()
 
-        client.newCall(request).enqueue(object : Callback {
+        mClient.newCall(request).enqueue(object : Callback {
+
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 fetchNewsItems(null)
@@ -28,34 +30,37 @@ class HackerNewsFetcher : NewsFetcher() {
 
                     if (response.body != null) {
                         val storiesAsJson = response.body!!.string()
-                        // Log.e("Test", "stories Json: $storiesAsJson")
                         // Convert the body to a String
                         // Convert the String into a List using comma separators
                         storyIds = JSONArray(storiesAsJson)
+                        Log.e("Test", "Story Ids length: ${storyIds!!.length()}")
                         fetchNewsItems(storyIds)
                     }
                 }
             }
-        }) // Finish the network call for each story ID
+        })
     }
 
     private fun fetchNewsItems(storyIds: JSONArray?) {
         // Builds a GET request for each top story ID
         // to acquire data for each individual story
-        if (storyIds != null) {
+        val results: ArrayList<JSONObject> = ArrayList()
+
+        if (storyIds != null && storyIds.length() > 0) {
             var index = 0
             while (index < storyIds.length()) {
                 val curId = storyIds[index]
-                // Log.e("Test", "Cur ID: $curId")
                 index++
 
+                // Request for a news article
                 val itemsRequest = Request.Builder()
                     .url(BuildConfig.URL_HACKER_NEWS_ITEM.replace("id", curId.toString()))
                     .build()
 
                 // Make a network request to get the payload for EACH
                 // story in the list...EXPENSIVE
-                client.newCall(itemsRequest).enqueue(object : Callback {
+                mClient.newCall(itemsRequest).enqueue(object : Callback {
+
                     override fun onFailure(call: Call, e: IOException) {
                         e.printStackTrace()
                     }
@@ -65,15 +70,32 @@ class HackerNewsFetcher : NewsFetcher() {
                             if (!response.isSuccessful) throw IOException("Unexpected code $response")
 
                             if (response.body != null) {
-                                val itemJson = response.body!!.string()
-                                Log.e("Test", "item Json: $itemJson")
+                                val itemJson = JSONObject(response.body!!.string())
+                                val itemJsonStr = itemJson.toString()
+                                //Log.e("Test", "item Json: $itemJsonStr")
+                                results.add(itemJson)
+
+                            } else {
+                                Log.e("Test", "Found an empty body")
+                            }
+
+                            //Log.e("test", "size: ${results.size}")
+                            if (results.size == storyIds.length()) {
+                                Log.e("Test", "Counts MATCH at: ${results.size}")
+                                // FULL RESULTS
+                                // return the full result list
+                                mCallback.onNewsAvailable(results)
                             }
                         }
                     }
-                }) // Finish the network call for each story ID
+                })
             }
+
         } else {
-            // todo - graceful error handling back up
+            // todo could also mean no internet
+            // EMPTY
+            // otherwise it will be empty from initialization
+            mCallback.onNewsAvailable(results)
         }
     }
 }
