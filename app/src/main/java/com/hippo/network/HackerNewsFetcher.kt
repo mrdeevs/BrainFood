@@ -7,7 +7,7 @@ import okio.IOException
 import org.json.JSONArray
 import org.json.JSONObject
 
-class HackerNewsRepository(listener: NewsListener) : NewsRepository(listener) {
+class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
 
     public override fun fetchNews() {
         // Builds a GET request to the top stories of
@@ -76,6 +76,8 @@ class HackerNewsRepository(listener: NewsListener) : NewsRepository(listener) {
                                 //Log.e("Test", "item Json: $itemJsonStr")
                                 results.add(itemJson)
                             } else {
+                                // todo if this is possible, the below check breaks
+                                // todo throw an error and re-parse
                                 Log.e("Test", "Found an empty body")
                             }
 
@@ -90,7 +92,7 @@ class HackerNewsRepository(listener: NewsListener) : NewsRepository(listener) {
             }
 
         } else {
-            // todo could also mean no internet
+            // todo could also mean no internet..
             // EMPTY
             // otherwise it will be empty from initialization
             mCallback.onNewsAvailable(results)

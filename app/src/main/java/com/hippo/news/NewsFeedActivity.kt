@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
-import com.hippo.network.HackerNewsRepository
-import com.hippo.network.NewsRepository
+import com.hippo.network.HackerNewsFetcher
+import com.hippo.network.NewsFetcher
 import org.json.JSONObject
 
-class NewsFeedActivity : AppCompatActivity(), NewsRepository.NewsListener {
+class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,7 +17,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsRepository.NewsListener {
 
         // Make a network request to acquire all of the
         // top stories on hacker news, and break it down into list format
-        val newsFetch = HackerNewsRepository(this)
+        val newsFetch = HackerNewsFetcher(this)
         newsFetch.fetchNews()
     }
 

@@ -1,13 +1,34 @@
 package com.hippo.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
+import com.hippo.data.NewsRepository
 import com.hippo.data.Story
+import com.hippo.data.database.NewsRoomDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class UserProfileViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+class StoryViewModel(application: Application) : AndroidViewModel(application) {
 
-    val storyId: Int =
-        savedStateHandle["storyId"] ?: throw IllegalArgumentException("missing story id")
+    private val repository: NewsRepository
+    // Using LiveData and caching what getBestStories() returns has several benefits:
+    // - We can put an observer on the data (instead of polling for changes) and only update the
+    //   the UI when the data actually changes.
+    // - Repository is completely separated from the UI through the ViewModel.
+    private val allStories: LiveData<List<Story>>
 
-    val story: Story = TODO()
+    init {
+        val storyDao = NewsRoomDatabase.getDatabase(application).storyDao()
+        repository = NewsRepository(storyDao)
+        allStories = repository.allStories
+    }
+
+    /**
+     * Launching a new co-routine to insert the data in a non-blocking way
+     */
+    fun insert(story: Story) = viewModelScope.launch(Dispatchers.IO) {
+        repository.insert(story)
+    }
 }
