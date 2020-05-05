@@ -27,26 +27,14 @@ abstract class NewsRoomDatabase : RoomDatabase() {
             super.onOpen(db)
             INSTANCE?.let { database ->
                 scope.launch {
-                    // todo - launch the news fetcher here, and then in the listener
-                    // todo - callback, we'll pass the results to populateDatabase
-                    populateDatabase(database.storyDao())
+                    clearDatabase(database.storyDao())
                 }
             }
         }
 
-        suspend fun populateDatabase(storiesDao: StoryDao) {
+        suspend fun clearDatabase(storiesDao: StoryDao) {
             // Delete all old news here.
             storiesDao.deleteAll()
-
-            // Add sample words.
-//            var word = Word("Hello")
-//            wordDao.insert(word)
-//            word = Word("World!")
-//            wordDao.insert(word)
-
-            // TODO: Add your own words!
-            // todo
-            // todo
         }
     }
 

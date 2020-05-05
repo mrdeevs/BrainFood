@@ -17,7 +17,7 @@ class StoryViewModel(application: Application) : AndroidViewModel(application) {
     // - We can put an observer on the data (instead of polling for changes) and only update the
     //   the UI when the data actually changes.
     // - Repository is completely separated from the UI through the ViewModel.
-    private val allStories: LiveData<List<Story>>
+    val allStories: LiveData<List<Story>>
 
     init {
         val storiesDao = NewsRoomDatabase.getDatabase(application, viewModelScope).storyDao()

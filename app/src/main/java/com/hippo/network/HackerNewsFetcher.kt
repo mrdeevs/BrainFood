@@ -9,6 +9,23 @@ import org.json.JSONObject
 
 class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
 
+    companion object {
+        const val JSON_BY = "by"
+        const val JSON_DESCENDANTS = "descendants"
+        const val JSON_UNIQUE_ID = "id"
+        const val JSON_SCORE = "score"
+        const val JSON_TIME = "time"
+        const val JSON_TITLE = "title"
+        const val JSON_TYPE = "type"
+        const val JSON_URL = "url"
+        const val JSON_TYPE_STORY = "story"
+        const val JSON_TYPE_JOB = "job"
+        const val JSON_TYPE_COMMENT = "comment"
+        const val JSON_TYPE_POLL = "poll"
+        const val JSON_TYPE_POLL_OPT = "pollopt"
+        const val JSON_NONE = "none"
+    }
+
     public override fun fetchNews() {
         // Builds a GET request to the top stories of
         // hacker news
