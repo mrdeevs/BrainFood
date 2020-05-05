@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.hippo.adapter.NewsListAdapter
 import com.hippo.data.Story
 import com.hippo.network.HackerNewsFetcher
 import com.hippo.network.NewsFetcher
@@ -25,16 +26,16 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
         // List of stories
         val recyclerView = findViewById<RecyclerView>(R.id.news_recycler_view)
-        //val adapter = StoriesListAdapter(this)
-        //recyclerView.adapter = adapter
+        val adapter = NewsListAdapter(this)
+        recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // Stories view model setup
         storiesViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
-//        storiesViewModel.allStories.observe(this, Observer { words ->
-//            // Update the cached copy of the words in the adapter.
-//            words?.let { adapter.setStories(it) }
-//        })
+        storiesViewModel.allStories.observe(this, Observer { stories ->
+            // Update the cached copy of the words in the adapter.
+            stories?.let { adapter.setStories(it) }
+        })
 
         // Make a network request to acquire all of the
         // top stories from various news outlets, and break it down into list format
@@ -59,7 +60,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
             // Only parse story types for now, we aren't interested in polls or jobs
             if (storyType == HackerNewsFetcher.JSON_TYPE_STORY) {
-                Log.e("NewsFeed", "Creating news story: ${story.toString(4)}")
+                //Log.e("NewsFeed", "Creating news story: ${story.toString(4)}")
 
                 // Descendants [Optional], non-required field might be missing
                 val descendantJson =
@@ -88,7 +89,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                     urlJson
                 )
 
-                // Insert into DB
+                // Insert new story into db
                 storiesViewModel.insert(newStory)
 
             } else {
@@ -98,9 +99,10 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
         }
 
         // Turn off the indeterminate spinner
-        // on the UI thread
+        // on the UI thread, and show the Recycler view list
         runOnUiThread {
             findViewById<ProgressBar>(R.id.news_feed_progress).visibility = View.GONE
+            findViewById<RecyclerView>(R.id.news_recycler_view).visibility = View.VISIBLE
         }
     }
 }
