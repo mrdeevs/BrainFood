@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
-import com.hippo.network.HackerNewsFetcher
-import com.hippo.network.NewsFetcher
+import com.hippo.network.HackerNewsRepository
+import com.hippo.network.NewsRepository
 import org.json.JSONObject
 
-class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
+class NewsFeedActivity : AppCompatActivity(), NewsRepository.NewsListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,16 +17,20 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
         // Make a network request to acquire all of the
         // top stories on hacker news, and break it down into list format
-        val newsFetch = HackerNewsFetcher(this)
+        val newsFetch = HackerNewsRepository(this)
         newsFetch.fetchNews()
     }
 
     override fun onNewsAvailable(results: List<JSONObject>) {
         Log.e("NewsFeed", "onNewsAvailable count: ${results.size}")
 
+        /*for(story in results) {
+            Log.e("NewsFeed", "news story: ${story.toString(4)}")
+        }*/
+
         // Turn off the indeterminate spinner
-        runOnUiThread(Runnable {
+        runOnUiThread {
             findViewById<ProgressBar>(R.id.news_feed_progress).visibility = View.GONE
-        })
+        }
     }
 }

@@ -7,12 +7,13 @@ import okio.IOException
 import org.json.JSONArray
 import org.json.JSONObject
 
-class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
+class HackerNewsRepository(listener: NewsListener) : NewsRepository(listener) {
 
     public override fun fetchNews() {
         // Builds a GET request to the top stories of
         // hacker news
         var storyIds: JSONArray?
+
         val request = Request.Builder()
             .url(BuildConfig.URL_HACKER_NEWS_TOP)
             .build()
@@ -33,7 +34,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                         // Convert the body to a String
                         // Convert the String into a List using comma separators
                         storyIds = JSONArray(storiesAsJson)
-                        //Log.e("Test", "Story Ids length: ${storyIds!!.length()}")
+                        //Log.e("HackerNewsRepository", "story Ids: $storyIds")
                         fetchNewsItems(storyIds)
                     }
                 }
@@ -80,7 +81,6 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
 
                             if (results.size == storyIds.length()) {
                                 //Log.e("Test", "Counts MATCH at: ${results.size}")
-                                // FULL RESULTS
                                 // return the full result list
                                 mCallback.onNewsAvailable(results)
                             }
