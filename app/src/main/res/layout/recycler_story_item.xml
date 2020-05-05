@@ -9,11 +9,29 @@
         style="@style/story_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/holo_green_light"
+        android:background="@android:color/white"
         android:fontFamily="sans-serif-thin"
+        android:gravity="center"
         android:paddingStart="14dp"
-        android:paddingTop="10dp"
+        android:paddingTop="20dp"
         android:paddingEnd="14dp"
-        android:paddingBottom="10dp"
+        android:paddingBottom="20dp"
         android:text="Sample" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/story_item_thumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:src="@drawable/ic_launcher_foreground" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/story_item_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-thin"
+        android:gravity="center"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:text="Warren Buffet shares his thoughts on the history of the U.S. economy during Berkshire Hathaway's 2020 annual shareholder meeting."/>
+
 </androidx.appcompat.widget.LinearLayoutCompat>

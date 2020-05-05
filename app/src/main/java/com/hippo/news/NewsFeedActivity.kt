@@ -25,12 +25,14 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
         setContentView(R.layout.news_main)
 
         // List of stories
+        // Adapter and layout manager
         val recyclerView = findViewById<RecyclerView>(R.id.news_recycler_view)
         val adapter = NewsListAdapter(this)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Stories view model setup
+        // Stories view model init
+        // Setup an observer to listen for data changes in the view model backing data
         storiesViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
         storiesViewModel.allStories.observe(this, Observer { stories ->
             // Update the cached copy of the words in the adapter.
@@ -50,7 +52,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
         // Create a new constructor of Story data class
         // Insert it into the database underneath
         for (story in results) {
-
             // Story Type i.e. Story, Job, Poll, Pollopt etc.
             val storyType =
                 if (story.has(HackerNewsFetcher.JSON_TYPE))
@@ -59,6 +60,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                     HackerNewsFetcher.JSON_NONE
 
             // Only parse story types for now, we aren't interested in polls or jobs
+            // Ignore non-story type
             if (storyType == HackerNewsFetcher.JSON_TYPE_STORY) {
                 //Log.e("NewsFeed", "Creating news story: ${story.toString(4)}")
 
@@ -92,9 +94,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                 // Insert new story into db
                 storiesViewModel.insert(newStory)
 
-            } else {
-                // Ignore non-stories for now
-                Log.e("NewsTest", "Non-story type found: $storyType")
             }
         }
 
