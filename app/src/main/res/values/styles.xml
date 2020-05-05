@@ -13,7 +13,7 @@
     <style name="story_title">
         <item name="android:layout_width">match_parent</item>
         <item name="android:paddingLeft">10dp</item>
-        <item name="android:background">@android:color/holo_orange_light</item>
+        <item name="android:background">@android:color/holo_green_light</item>
         <item name="android:textAppearance">@android:style/TextAppearance.Large</item>
     </style>
 
