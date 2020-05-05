@@ -72,7 +72,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
 
                             if (response.body != null) {
                                 val itemJson = JSONObject(response.body!!.string())
-                                val itemJsonStr = itemJson.toString()
+                                //val itemJsonStr = itemJson.toString()
                                 //Log.e("Test", "item Json: $itemJsonStr")
                                 results.add(itemJson)
                             } else {
@@ -92,7 +92,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
             }
 
         } else {
-            // todo could also mean no internet..
+            // todo could also mean no internet / couldn't find a network i've seen it
             // EMPTY
             // otherwise it will be empty from initialization
             mCallback.onNewsAvailable(results)

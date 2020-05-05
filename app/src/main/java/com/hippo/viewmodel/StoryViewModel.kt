@@ -20,8 +20,8 @@ class StoryViewModel(application: Application) : AndroidViewModel(application) {
     private val allStories: LiveData<List<Story>>
 
     init {
-        val storyDao = NewsRoomDatabase.getDatabase(application).storyDao()
-        repository = NewsRepository(storyDao)
+        val storiesDao = NewsRoomDatabase.getDatabase(application, viewModelScope).storyDao()
+        repository = NewsRepository(storiesDao)
         allStories = repository.allStories
     }
 
