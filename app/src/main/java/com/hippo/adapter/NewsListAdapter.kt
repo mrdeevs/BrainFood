@@ -10,23 +10,27 @@ import com.hippo.data.Story
 import com.hippo.news.R
 
 class NewsListAdapter internal constructor(context: Context) :
-    RecyclerView.Adapter<NewsListAdapter.WordViewHolder>() {
+    RecyclerView.Adapter<NewsListAdapter.StoryViewHolder>() {
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     private var stories = emptyList<Story>() // Cached copy of words
 
-    inner class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val wordItemView: TextView = itemView.findViewById(R.id.story_item_title)
+    inner class StoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val storyTitleTextView: TextView = itemView.findViewById(R.id.story_item_title)
+        val storyDescTextView: TextView = itemView.findViewById(R.id.story_item_description)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WordViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {
         val itemView = inflater.inflate(R.layout.recycler_story_item, parent, false)
-        return WordViewHolder(itemView)
+        return StoryViewHolder(itemView)
     }
 
-    override fun onBindViewHolder(holder: WordViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: StoryViewHolder, position: Int) {
         val current = stories[position]
-        holder.wordItemView.text = current.title
+        // Set the title
+        // Set the description text
+        holder.storyTitleTextView.text = current.title
+        //holder.storyDescTextView.text = current.
     }
 
     internal fun setStories(updateStories: List<Story>) {

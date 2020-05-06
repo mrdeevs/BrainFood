@@ -24,6 +24,9 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         const val JSON_TYPE_POLL = "poll"
         const val JSON_TYPE_POLL_OPT = "pollopt"
         const val JSON_NONE = "none"
+
+        // Class constants
+        const val HACKER_NEWS_SOURCE = "hacker"
     }
 
     public override fun fetchNews() {
@@ -32,7 +35,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         var storyIds: JSONArray?
 
         val request = Request.Builder()
-            .url(BuildConfig.URL_HACKER_NEWS_TOP)
+            .url(BuildConfig.URL_HACKER_NEWS_NEW)
             .build()
 
         mClient.newCall(request).enqueue(object : Callback {
@@ -51,7 +54,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                         // Convert the body to a String
                         // Convert the String into a List using comma separators
                         storyIds = JSONArray(storiesAsJson)
-                        //Log.e("HackerNewsRepository", "story Ids: $storyIds")
+                        Log.e("HackerNewsRepository", "story Ids: $storyIds")
                         fetchNewsItems(storyIds)
                     }
                 }
@@ -66,6 +69,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
 
         if (storyIds != null && storyIds.length() > 0) {
             var index = 0
+
             while (index < storyIds.length()) {
                 val curId = storyIds[index]
                 index++
@@ -85,21 +89,41 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
 
                     override fun onResponse(call: Call, response: Response) {
                         response.use {
-                            if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                            if (!response.isSuccessful)
+                                throw IOException("Unexpected code $response")
 
-                            if (response.body != null) {
-                                val itemJson = JSONObject(response.body!!.string())
-                                //val itemJsonStr = itemJson.toString()
-                                //Log.e("Test", "item Json: $itemJsonStr")
-                                results.add(itemJson)
-                            } else {
-                                // todo if this is possible, the below check breaks
-                                // todo throw an error and re-parse
-                                Log.e("Test", "Found an empty body")
+                            try {
+                                if (response.body != null) {
+                                    val itemJson = JSONObject(response.body!!.string())
+                                    val itemJsonStr = itemJson.toString()
+                                    Log.e("Test", "item Json: $itemJsonStr")
+                                    results.add(itemJson)
+
+                                } else {
+                                    // Response body was null or invalid, handle error
+                                    // Create an empty JSON object for results that go wrong or are invalid
+                                    results.add(JSONObject())
+                                    Log.e(
+                                        "HackerNewsFetcher",
+                                        "Found an empty body - adding empty story JSON"
+                                    )
+                                }
+                            } catch (e: Exception) {
+                                // Create an empty JSON object for results that go wrong or are invalid
+                                results.add(JSONObject())
+                                Log.e(
+                                    "HackerNewsFetcher",
+                                    "Found an exception on story item " + e.message
+                                )
                             }
 
+                            Log.e(
+                                "Test",
+                                "result size: " + results.size + " story id length: " + storyIds.length()
+                            )
+                            // Check if all stories have been fetched
                             if (results.size == storyIds.length()) {
-                                //Log.e("Test", "Counts MATCH at: ${results.size}")
+                                Log.e("Test", "Counts match at: ${results.size}")
                                 // return the full result list
                                 mCallback.onNewsAvailable(results)
                             }

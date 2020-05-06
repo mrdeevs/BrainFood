@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "stories")
-data class Story (
+data class Story(
     @PrimaryKey var storyId: Int,
     var by: String?,
     var descendants: Int,
@@ -14,6 +14,7 @@ data class Story (
     var time: Long,
     var title: String?,
     var type: String?,
-    var url: String?
+    var url: String?,
+    var source: String?
     // @ColumnInfo(name = "comment_ids") var kids: JSONArray?, // todo add comment support
 )

@@ -13,9 +13,9 @@
         android:fontFamily="sans-serif-thin"
         android:gravity="center"
         android:paddingStart="14dp"
-        android:paddingTop="20dp"
+        android:paddingTop="24dp"
         android:paddingEnd="14dp"
-        android:paddingBottom="20dp"
+        android:paddingBottom="24dp"
         android:text="Sample" />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -24,7 +24,7 @@
         android:layout_height="220dp"
         android:src="@drawable/ic_launcher_foreground" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/story_item_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
