@@ -1,5 +1,6 @@
 package com.hippo.network
 
+import android.util.Log
 import com.hippo.news.BuildConfig
 import okhttp3.*
 import okio.IOException
@@ -107,10 +108,10 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                                 results.add(JSONObject())
                             }
 
-                            // Log.e("test", "result size: " + results.size + " story id length: " + storyIds.length())
+                            //Log.e("test", "result size: " + results.size + " story id length: " + storyIds.length())
                             // Check if all stories have been fetched
                             if (results.size == storyIds.length()) {
-                                // Log.e("Test", "Counts match at: ${results.size}")
+                                //Log.e("Test", "Counts match at: ${results.size}")
                                 // return the full result list
                                 mCallback.onNewsAvailable(results)
                             }

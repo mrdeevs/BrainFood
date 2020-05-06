@@ -15,6 +15,7 @@ data class Story(
     var title: String?,
     var type: String?,
     var url: String?,
-    var source: String?
+    var source: String?,
+    var image: String?
     // @ColumnInfo(name = "comment_ids") var kids: JSONArray?, // todo add comment support
 )

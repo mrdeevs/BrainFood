@@ -1,4 +1,40 @@
 package com.hippo.utils
 
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.select.Elements
+import java.io.IOException
+import java.lang.Exception
+
+
 class HippoUtils {
+    /**
+     * Takes a url and extracts all the images out of its HTML
+     * */
+    fun extractImagesFromUrl(url: String): Elements? {
+        val doc: Document
+        var images: Elements?
+        try {
+            // Get all images from the url HTML
+            doc = Jsoup.connect(url).get()
+            images = doc.select("img[src~=(?i)\\.(png|jpe?g|gif)]")
+//            for (image in images) {
+//                System.out.println(
+//                    """
+//
+//                        src : ${image.attr("src")}
+//                        """.trimIndent()
+//                )
+//                System.out.println("height : " + image.attr("height"))
+//                System.out.println("width : " + image.attr("width"))
+//                System.out.println("alt : " + image.attr("alt"))
+//            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            images = null
+        }
+
+        // Return the results
+        return images
+    }
 }

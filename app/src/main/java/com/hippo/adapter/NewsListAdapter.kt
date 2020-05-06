@@ -2,7 +2,6 @@ package com.hippo.adapter
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,8 +30,6 @@ class NewsListAdapter internal constructor(context: Context) :
         override fun onClick(v: View) {
             // Open the preview activity
             // to view the story in full
-            // todo - later we should parse the HTML and only show the
-            // todo - data we are interested in.. i.e. text, image, etc..
             val context = itemView.context
             val showPhotoIntent = Intent(context, NewsPreviewActivity::class.java)
             showPhotoIntent.putExtra(NewsPreviewActivity.KEY_URL, stories[adapterPosition].url)
