@@ -1,12 +1,15 @@
 package com.hippo.adapter
 
 import android.content.Context
+import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.hippo.data.Story
+import com.hippo.news.NewsPreviewActivity
 import com.hippo.news.R
 
 class NewsListAdapter internal constructor(context: Context) :
@@ -15,9 +18,27 @@ class NewsListAdapter internal constructor(context: Context) :
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     private var stories = emptyList<Story>() // Cached copy of words
 
-    inner class StoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val storyTitleTextView: TextView = itemView.findViewById(R.id.story_item_title)
-        val storyDescTextView: TextView = itemView.findViewById(R.id.story_item_description)
+    inner class StoryViewHolder(storyView: View) : RecyclerView.ViewHolder(storyView),
+        View.OnClickListener {
+        val storyTitleTextView: TextView = storyView.findViewById(R.id.story_item_title)
+        val storyDescTextView: TextView = storyView.findViewById(R.id.story_item_description)
+
+        init {
+            // View holders handle their own events
+            storyView.setOnClickListener(this)
+        }
+
+        override fun onClick(v: View) {
+            Log.e("StoryViewHolder", "CLICK!")
+            // Open the preview activity
+            // to view the story in full
+            // todo - later we should parse the HTML and only show the
+            // todo - data we are interested in.. i.e. text, image, etc..
+            val context = itemView.context
+            val showPhotoIntent = Intent(context, NewsPreviewActivity::class.java)
+            showPhotoIntent.putExtra(NewsPreviewActivity.KEY_URL, stories[adapterPosition].url)
+            context.startActivity(showPhotoIntent)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {

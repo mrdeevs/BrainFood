@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/story_item_parent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -15,9 +16,9 @@
         android:gravity="center"
         android:maxLines="2"
         android:paddingStart="@dimen/story_item_padding_start_end"
-        android:paddingTop="24dp"
+        android:paddingTop="40dp"
         android:paddingEnd="@dimen/story_item_padding_start_end"
-        android:paddingBottom="24dp"
+        android:paddingBottom="40dp"
         android:text="Sample" />
 
     <TextView
