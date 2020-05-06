@@ -2,6 +2,7 @@ package com.hippo.news
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Debug
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
