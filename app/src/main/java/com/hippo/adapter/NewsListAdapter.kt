@@ -30,7 +30,7 @@ class NewsListAdapter internal constructor(context: Context) :
         // Set the title
         // Set the description text
         holder.storyTitleTextView.text = current.title
-        //holder.storyDescTextView.text = current.
+        holder.storyDescTextView.text = current.url
     }
 
     internal fun setStories(updateStories: List<Story>) {

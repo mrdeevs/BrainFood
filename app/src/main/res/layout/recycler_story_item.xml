@@ -10,19 +10,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
+        android:ellipsize="end"
         android:fontFamily="sans-serif-thin"
         android:gravity="center"
-        android:paddingStart="14dp"
+        android:maxLines="2"
+        android:paddingStart="@dimen/story_item_padding_start_end"
         android:paddingTop="24dp"
-        android:paddingEnd="14dp"
+        android:paddingEnd="@dimen/story_item_padding_start_end"
         android:paddingBottom="24dp"
         android:text="Sample" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/story_item_thumbnail"
-        android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:src="@drawable/ic_launcher_foreground" />
 
     <TextView
         android:id="@+id/story_item_description"
@@ -30,8 +26,15 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-thin"
         android:gravity="center"
+        android:paddingStart="@dimen/story_item_padding_start_end"
         android:paddingTop="20dp"
+        android:paddingEnd="@dimen/story_item_padding_start_end"
         android:paddingBottom="20dp"
-        android:text="Warren Buffet shares his thoughts on the history of the U.S. economy during Berkshire Hathaway's 2020 annual shareholder meeting."/>
+        android:text="Warren Buffet shares his thoughts on the history of the U.S. economy during Berkshire Hathaway's 2020 annual shareholder meeting." />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#22000000" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

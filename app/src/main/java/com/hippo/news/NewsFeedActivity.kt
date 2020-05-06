@@ -53,6 +53,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
         // Insert it into the database underneath
         for (story in results) {
             if (story.length() > 0) {
+                Log.e("test", "cur story: $story")
                 // Story Type i.e. Story, Job, Poll, Poll-opt etc.
                 val storyScore =
                     if (story.has(HackerNewsFetcher.JSON_SCORE))
