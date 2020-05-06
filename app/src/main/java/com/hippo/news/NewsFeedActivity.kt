@@ -2,7 +2,6 @@ package com.hippo.news
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Debug
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
@@ -23,6 +22,10 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
     private lateinit var storiesViewModel: StoryViewModel
     private lateinit var utils: HippoUtils
+
+//    companion object {
+//        const val MAX_STORIES = 10
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,10 +60,12 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
         // For each story found
         // Create a new constructor of Story data class
         // Insert it into the database underneath
-        for (storyJson in results) {
 
+        var index: Int = 0
+        for (storyJson in results) {
             // Check for empty story json, which means its an invalid item and should be ignored
             if (storyJson.length() > 0) {
+
                 // Story Type i.e. Story, Job, Poll, Poll-opt etc.
                 val storyType =
                     if (storyJson.has(HackerNewsFetcher.JSON_TYPE))
@@ -133,6 +138,9 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                     }
                 } // End check for ONLY story types
             } // End check for empty story results
+
+            index++
+
         } // End for each over results
 
         // Turn off the indeterminate spinner
@@ -153,7 +161,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
         if (allUrlImages != null) {
             for (img in allUrlImages) {
-                //Log.e("test", "img found in url: $img")
+                Log.e("test", "img found in url: $img")
                 // extract attributes i.e. src from the current image element
                 // then check for the actual src attribute
                 // then we need to check for http to make sure its a valid remote image, not
@@ -168,6 +176,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                     if (srcElement.contains("http") || srcElement.contains("https")) {
                         //Log.e("test", "found HTTP img: $img")
                         httpImages.add(srcElement)
+                        break // todo - we need to find the BEST image, not just the first one.....
                     }
                 }
             }

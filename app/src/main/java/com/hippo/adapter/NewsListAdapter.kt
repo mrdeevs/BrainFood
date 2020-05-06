@@ -57,12 +57,17 @@ class NewsListAdapter internal constructor(context: Context) :
         // Async load the image URL into image view
         // Only load non-empty valid urls
         if (!current.image.isNullOrEmpty()) {
+            // Turn on the image, we found a url
+            holder.storyImageView.visibility = View.VISIBLE
             Glide.with(holder.storyImageView.context)
                 .load(current.image)
                 .centerCrop()
                 .into(holder.storyImageView)
         } else {
+            // Clear the resource
+            // Hide the image view so the UI doesn't take up space
             Glide.with(holder.storyImageView.context).clear(holder.storyImageView)
+            holder.storyImageView.visibility = View.GONE
         }
     }
 
