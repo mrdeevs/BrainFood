@@ -8,21 +8,29 @@
     <TextView
         android:id="@+id/story_item_title"
         style="@style/story_title"
-        android:alpha="0.75"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:alpha="0.75"
         android:background="@android:color/white"
         android:ellipsize="end"
         android:fontFamily="sans-serif-thin"
         android:gravity="center"
         android:maxLines="2"
         android:paddingStart="@dimen/story_item_padding_start_end"
-        android:paddingTop="60dp"
+        android:paddingTop="40dp"
         android:paddingEnd="@dimen/story_item_padding_start_end"
-        android:paddingBottom="60dp"
+        android:paddingBottom="40dp"
         android:text="Sample"
         android:textColor="@android:color/black"
         android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/story_item_image"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:background="@android:color/white"
+        android:src="@drawable/ic_launcher_foreground" />
 
     <TextView
         android:id="@+id/story_item_description"
@@ -39,6 +47,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="#44000000"/>
+        android:background="#44000000" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

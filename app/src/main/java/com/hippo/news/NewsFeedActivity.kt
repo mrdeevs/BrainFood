@@ -94,8 +94,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                         else
                             HackerNewsFetcher.JSON_NONE
 
-                    Log.e("test", "story url: $urlJson")
-
                     // Ensure a valid URL
                     // Ensure a valid Unique ID
                     // Ensure a valid story type
@@ -104,7 +102,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                         // todo - move to a background thread / co-routine
                         // EXPENSIVE.. wow
                         val imgSrc = extractImagesFromStoryUrl(urlJson)
-                        Log.e("test", "imgSrc as str: " + imgSrc.toString())
+                        //Log.e("test", "imgSrc as str: " + imgSrc.toString())
 
                         // Create a new story entry
                         val newStory = Story(
@@ -118,7 +116,14 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                             storyJson.getString(HackerNewsFetcher.JSON_TYPE),
                             urlJson,
                             HackerNewsFetcher.HACKER_NEWS_SOURCE,
-                            imgSrc.toString()
+
+                            // Check for valid image
+                            // todo - instead of taking the first image here [0]
+                            // todo use area and w x h to calculate the best header image / preview
+                            if (imgSrc != null && imgSrc.isNotEmpty())
+                                imgSrc[0]
+                            else
+                                ""
                         )
 
                         // INSERT
@@ -161,7 +166,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                     // Allow ONLY http images
                     // Local ones are removed.. we can't show those or load them async here
                     if (srcElement.contains("http") || srcElement.contains("https")) {
-                        Log.e("test", "found HTTP img: $img")
+                        //Log.e("test", "found HTTP img: $img")
                         httpImages.add(srcElement)
                     }
                 }

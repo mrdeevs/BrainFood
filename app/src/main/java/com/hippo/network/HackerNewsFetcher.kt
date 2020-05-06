@@ -35,7 +35,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         var storyIds: JSONArray?
 
         val request = Request.Builder()
-            .url(BuildConfig.URL_HACKER_NEWS_NEW)
+            .url(BuildConfig.URL_HACKER_NEWS_BEST)
             .build()
 
         mClient.newCall(request).enqueue(object : Callback {
@@ -108,10 +108,10 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                                 results.add(JSONObject())
                             }
 
-                            //Log.e("test", "result size: " + results.size + " story id length: " + storyIds.length())
+                            Log.e("test", "result size: " + results.size + " story id length: " + storyIds.length())
                             // Check if all stories have been fetched
                             if (results.size == storyIds.length()) {
-                                //Log.e("Test", "Counts match at: ${results.size}")
+                                Log.e("Test", "Counts match at: ${results.size}")
                                 // return the full result list
                                 mCallback.onNewsAvailable(results)
                             }
