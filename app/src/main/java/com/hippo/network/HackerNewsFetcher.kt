@@ -1,6 +1,5 @@
 package com.hippo.network
 
-import android.util.Log
 import com.hippo.news.BuildConfig
 import okhttp3.*
 import okio.IOException
@@ -98,23 +97,20 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                                     val itemJson = JSONObject(response.body!!.string())
                                     results.add(itemJson)
                                     //Log.e("Test", "item Json: $itemJson")
-
                                 } else {
                                     // Response body was null or invalid, handle error
                                     // Create an empty JSON object for results that go wrong or are invalid
                                     results.add(JSONObject())
-                                    //Log.e("HackerNewsFetcher", "Found an empty body - adding empty story JSON")
                                 }
                             } catch (e: Exception) {
                                 // Create an empty JSON object for results that go wrong or are invalid
                                 results.add(JSONObject())
-                                //Log.e("HackerNewsFetcher", "Found an exception on story item index $index")
                             }
 
-                            //Log.e("test", "result size: " + results.size + " story id length: " + storyIds.length())
+                            // Log.e("test", "result size: " + results.size + " story id length: " + storyIds.length())
                             // Check if all stories have been fetched
                             if (results.size == storyIds.length()) {
-                                Log.e("Test", "Counts match at: ${results.size}")
+                                // Log.e("Test", "Counts match at: ${results.size}")
                                 // return the full result list
                                 mCallback.onNewsAvailable(results)
                             }
