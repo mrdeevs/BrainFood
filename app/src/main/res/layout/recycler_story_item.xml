@@ -17,9 +17,9 @@
         android:gravity="center"
         android:maxLines="2"
         android:paddingStart="@dimen/story_item_padding_start_end"
-        android:paddingTop="40dp"
+        android:paddingTop="60dp"
         android:paddingEnd="@dimen/story_item_padding_start_end"
-        android:paddingBottom="40dp"
+        android:paddingBottom="60dp"
         android:text="Sample"
         android:textColor="@android:color/black"
         android:textStyle="bold" />
@@ -39,6 +39,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="#99000000"/>
+        android:background="#44000000"/>
 
 </androidx.appcompat.widget.LinearLayoutCompat>
