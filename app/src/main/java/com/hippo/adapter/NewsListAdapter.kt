@@ -29,7 +29,6 @@ class NewsListAdapter internal constructor(context: Context) :
         }
 
         override fun onClick(v: View) {
-            Log.e("StoryViewHolder", "CLICK!")
             // Open the preview activity
             // to view the story in full
             // todo - later we should parse the HTML and only show the
