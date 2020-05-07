@@ -37,7 +37,6 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         // Builds a GET request to the top stories of
         // hacker news
         var storyIds: JSONArray?
-
         val request = Request.Builder()
             .url(BuildConfig.URL_HACKER_NEWS_BEST)
             .build()
@@ -65,7 +64,8 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                             // Also make sure last > first
                             if (firstStoryIndex >= 0 && firstStoryIndex < storyIds!!.length()
                                 && lastStoryIndex >= 0 && lastStoryIndex < storyIds!!.length()
-                                && lastStoryIndex >= firstStoryIndex) {
+                                && lastStoryIndex >= firstStoryIndex
+                            ) {
                                 // Filter down to the specified range:
                                 // [firstStoryIndex, lastStoryIndex]
                                 val filteredRange = JSONArray()

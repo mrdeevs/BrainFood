@@ -22,6 +22,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
     private lateinit var storiesViewModel: StoryViewModel
 
+    private var isLoading: Boolean = false
     private var lastStoryIndex = -1 // -1 is important here, can't be anything else
 
     companion object {
@@ -63,6 +64,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
             storiesViewModel.insert(newStory)
         }
 
+        isLoading = false
+
         // Turn off the indeterminate spinner
         // on the UI thread, and show the Recycler view list
         runOnUiThread {
@@ -75,6 +78,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
         val newsFetch = HackerNewsFetcher(this)
         lastStoryIndex += LOADING_INTERVAL_COUNT
         newsFetch.fetchNews(first, lastStoryIndex)
+        isLoading = true
     }
 
     private inner class NewsScrollListener : RecyclerView.OnScrollListener() {
@@ -96,8 +100,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                     Log.e(this.javaClass.simpleName, "Idle")
 
                     // Check if we're at the bottom..
-                    if (!recyclerView.canScrollVertically(1)) {
-                        Log.e(this.javaClass.simpleName, "Bottom reached!")
+                    if (!recyclerView.canScrollVertically(1) && !isLoading) {
+                        Log.e(this.javaClass.simpleName, "Bottom reached! About to load more...")
 
                         // Fetch the next range of stories
                         runOnUiThread {
@@ -106,6 +110,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                         }
 
                         fetchNextNewsRange(lastStoryIndex + 1)
+                    } else {
+                        Log.e(this.javaClass.simpleName, "Already loading or not at bottom yet...")
                     }
                 }
 
