@@ -10,6 +10,9 @@ import java.lang.Exception
 class HippoUtils {
     /**
      * Takes a url and extracts all the images out of its HTML
+     * WARNING: This is very expensive and takes time in the bakground to walk
+     * the DOM of a given HTML page and parse it for images tags. This should be done in the
+     * background via ro-routine or something
      * */
     fun extractImagesFromUrl(url: String): Elements? {
         val doc: Document
@@ -20,11 +23,8 @@ class HippoUtils {
             images = doc.select("img[src~=(?i)\\.(png|jpe?g|gif)]")
 //            for (image in images) {
 //                System.out.println(
-//                    """
-//
-//                        src : ${image.attr("src")}
-//                        """.trimIndent()
-//                )
+//                    """ src : ${image.attr("src")}
+//                        """.trimIndent() )
 //                System.out.println("height : " + image.attr("height"))
 //                System.out.println("width : " + image.attr("width"))
 //                System.out.println("alt : " + image.attr("alt"))

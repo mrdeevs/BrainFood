@@ -21,18 +21,10 @@ import org.jsoup.select.Elements
 class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
     private lateinit var storiesViewModel: StoryViewModel
-    private lateinit var utils: HippoUtils
-
-//    companion object {
-//        const val MAX_STORIES = 10
-//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.news_main)
-
-        // Setup utils
-        utils = HippoUtils()
 
         // List of stories
         // Adapter and layout manager
@@ -55,93 +47,14 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
         newsFetch.fetchNews()
     }
 
-    override fun onNewsAvailable(results: List<JSONObject>) {
+    override fun onNewsAvailable(results: List<Story>) {
         Log.e("NewsFeed", "onNewsAvailable count: ${results.size}")
-        // For each story found
-        // Create a new constructor of Story data class
-        // Insert it into the database underneath
 
-        var index: Int = 0
-        for (storyJson in results) {
-            // Check for empty story json, which means its an invalid item and should be ignored
-            if (storyJson.length() > 0) {
-
-                // Story Type i.e. Story, Job, Poll, Poll-opt etc.
-                val storyType =
-                    if (storyJson.has(HackerNewsFetcher.JSON_TYPE))
-                        storyJson.getString(HackerNewsFetcher.JSON_TYPE)
-                    else
-                        HackerNewsFetcher.JSON_NONE
-
-                // Only parse story types for now, we aren't interested in polls or jobs
-                // Ignore non-story type
-                if (storyType == HackerNewsFetcher.JSON_TYPE_STORY) {
-                    //Log.e("NewsFeed", "Creating news story: ${story.toString(4)}")
-
-                    // Story score [Optional]
-                    val storyScore =
-                        if (storyJson.has(HackerNewsFetcher.JSON_SCORE))
-                            storyJson.getInt(HackerNewsFetcher.JSON_SCORE)
-                        else
-                            0
-
-                    // Descendants [Optional], non-required field might be missing
-                    val descendantJson =
-                        if (storyJson.has(HackerNewsFetcher.JSON_DESCENDANTS))
-                            storyJson.getInt(HackerNewsFetcher.JSON_DESCENDANTS)
-                        else
-                            0
-
-                    // Url [Optional], non-required field might be missing
-                    val urlJson =
-                        if (storyJson.has(HackerNewsFetcher.JSON_URL))
-                            storyJson.getString(HackerNewsFetcher.JSON_URL)
-                        else
-                            HackerNewsFetcher.JSON_NONE
-
-                    // Ensure a valid URL
-                    // Ensure a valid Unique ID
-                    // Ensure a valid story type
-                    if (urlJson != HackerNewsFetcher.JSON_NONE) {
-                        // todo add optional checks for unique id, by, time, title, type
-                        // todo - move to a background thread / co-routine
-                        // EXPENSIVE.. wow
-                        val imgSrc = extractImagesFromStoryUrl(urlJson)
-                        //Log.e("test", "imgSrc as str: " + imgSrc.toString())
-
-                        // Create a new story entry
-                        val newStory = Story(
-                            storyJson.getInt(HackerNewsFetcher.JSON_UNIQUE_ID),
-                            storyJson.getString(HackerNewsFetcher.JSON_BY),
-                            descendantJson,
-                            storyJson.getInt(HackerNewsFetcher.JSON_UNIQUE_ID),
-                            storyScore,
-                            storyJson.getLong(HackerNewsFetcher.JSON_TIME),
-                            storyJson.getString(HackerNewsFetcher.JSON_TITLE),
-                            storyJson.getString(HackerNewsFetcher.JSON_TYPE),
-                            urlJson,
-                            HackerNewsFetcher.HACKER_NEWS_SOURCE,
-
-                            // Check for valid image
-                            // todo - instead of taking the first image here [0]
-                            // todo use area and w x h to calculate the best header image / preview
-                            if (imgSrc != null && imgSrc.isNotEmpty())
-                                imgSrc[0]
-                            else
-                                ""
-                        )
-
-                        // INSERT
-                        // Insert new story into db
-                        storiesViewModel.insert(newStory)
-
-                    }
-                } // End check for ONLY story types
-            } // End check for empty story results
-
-            index++
-
-        } // End for each over results
+        for(newStory in results) {
+            // INSERT
+            // Insert new story into db
+            storiesViewModel.insert(newStory)
+        }
 
         // Turn off the indeterminate spinner
         // on the UI thread, and show the Recycler view list
@@ -149,39 +62,5 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
             findViewById<ProgressBar>(R.id.news_feed_progress).visibility = View.GONE
             findViewById<RecyclerView>(R.id.news_recycler_view).visibility = View.VISIBLE
         }
-    }
-
-    private fun extractImagesFromStoryUrl(url: String): List<String>? {
-        // Scrape all images out of the url using jSoup
-        val allUrlImages: Elements? =
-            utils.extractImagesFromUrl(url) // Expensive WOW...
-
-        // results container filtered
-        val httpImages = ArrayList<String>()
-
-        if (allUrlImages != null) {
-            for (img in allUrlImages) {
-                Log.e("test", "img found in url: $img")
-                // extract attributes i.e. src from the current image element
-                // then check for the actual src attribute
-                // then we need to check for http to make sure its a valid remote image, not
-                // a local path, since they have shown up
-                val attributes = img.attributes()
-
-                if (attributes.hasKey("src")) {
-                    val srcElement = attributes.get("src")
-
-                    // Allow ONLY http images
-                    // Local ones are removed.. we can't show those or load them async here
-                    if (srcElement.contains("http") || srcElement.contains("https")) {
-                        //Log.e("test", "found HTTP img: $img")
-                        httpImages.add(srcElement)
-                        break // todo - we need to find the BEST image, not just the first one.....
-                    }
-                }
-            }
-        }
-
-        return httpImages
     }
 }

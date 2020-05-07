@@ -1,6 +1,7 @@
 package com.hippo.network
 
 import android.util.Log
+import com.hippo.data.Story
 import com.hippo.news.BuildConfig
 import okhttp3.*
 import okio.IOException
@@ -113,7 +114,8 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                             if (results.size == storyIds.length()) {
                                 //Log.e("Test", "Counts match at: ${results.size}")
                                 // return the full result list
-                                mCallback.onNewsAvailable(results)
+                                // Converts each JSONObject into a readable story
+                                mCallback.onNewsAvailable(convertStoryJsonToStories(results))
                             }
                         }
                     }
@@ -125,5 +127,99 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
             // otherwise it will be empty from initialization
             mCallback.onNewsAvailable(ArrayList())
         }
+    }
+
+    /**
+     * Takes a valid response of List<JSONObject> that contains the News data
+     * and converts it into our database friendly (Room) class of a Story for each
+     * */
+    override fun convertStoryJsonToStories(results: List<JSONObject>) : List<Story> {
+        val output: ArrayList<Story> = ArrayList()
+        // For each story found
+        // Create a new constructor of Story data class
+        // Insert it into the database underneath
+        var index: Int = 0
+
+        for (storyJson in results) {
+            // Check for empty story json, which means its an invalid item and should be ignored
+            if (storyJson.length() > 0) {
+
+                // Story Type i.e. Story, Job, Poll, Poll-opt etc.
+                val storyType =
+                    if (storyJson.has(JSON_TYPE))
+                        storyJson.getString(JSON_TYPE)
+                    else
+                        JSON_NONE
+
+                // Only parse story types for now, we aren't interested in polls or jobs
+                // Ignore non-story type
+                if (storyType == JSON_TYPE_STORY) {
+
+                    //Log.e("NewsFeed", "Creating news story: ${story.toString(4)}")
+                    // Story score [Optional]
+                    val storyScore =
+                        if (storyJson.has(JSON_SCORE))
+                            storyJson.getInt(JSON_SCORE)
+                        else
+                            0
+
+                    // Descendants [Optional], non-required field might be missing
+                    val descendantJson =
+                        if (storyJson.has(JSON_DESCENDANTS))
+                            storyJson.getInt(JSON_DESCENDANTS)
+                        else
+                            0
+
+                    // Url [Optional], non-required field might be missing
+                    val urlJson =
+                        if (storyJson.has(JSON_URL))
+                            storyJson.getString(JSON_URL)
+                        else
+                            JSON_NONE
+
+                    // Ensure a valid URL
+                    // Ensure a valid Unique ID
+                    // Ensure a valid story type
+                    if (urlJson != JSON_NONE) {
+                        // todo add optional checks for unique id, by, time, title, type
+                        // todo - move to a background thread / co-routine
+                        // EXPENSIVE.. wow
+                        val imgSrc = extractImagesFromStoryUrl(urlJson)
+                        //Log.e("test", "imgSrc as str: " + imgSrc.toString())
+
+                        // Create a new story entry
+                        val newStory = Story(
+                            storyJson.getInt(JSON_UNIQUE_ID),
+                            storyJson.getString(JSON_BY),
+                            descendantJson,
+                            storyJson.getInt(JSON_UNIQUE_ID),
+                            storyScore,
+                            storyJson.getLong(JSON_TIME),
+                            storyJson.getString(JSON_TITLE),
+                            storyJson.getString(JSON_TYPE),
+                            urlJson,
+                            HACKER_NEWS_SOURCE,
+
+                            // Check for valid image
+                            // todo - instead of taking the first image here [0]
+                            // todo use area and w x h to calculate the best header image / preview
+                            if (imgSrc != null && imgSrc.isNotEmpty())
+                                imgSrc[0]
+                            else
+                                ""
+                        )
+
+                        // Add it to output
+                        output.add(newStory)
+                    }
+                } // End check for ONLY story types
+            } // End check for empty story results
+
+            index++
+
+        } // End for each over results
+
+        // Return the converted type list
+        return output
     }
 }
