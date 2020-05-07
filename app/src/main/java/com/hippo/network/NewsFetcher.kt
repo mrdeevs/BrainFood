@@ -6,8 +6,17 @@ import com.hippo.utils.HippoUtils
 import okhttp3.*
 import org.json.JSONObject
 import org.jsoup.select.Elements
+import java.lang.Exception
 
 open class NewsFetcher(listener: NewsListener) {
+
+    companion object {
+        const val PREVIEW_WIDTH = 250
+        const val PREVIEW_HEIGHT = 250
+        const val ATTR_WIDTH = "width"
+        const val ATTR_HEIGHT = "height"
+        const val ATTR_SRC = "src"
+    }
 
     // Callback for when the story data is ready from api
     interface NewsListener {
@@ -33,10 +42,10 @@ open class NewsFetcher(listener: NewsListener) {
         val allUrlImages: Elements? =
             mUtils.extractImagesFromUrl(url) // Expensive WOW...
 
-        // results container filtered
         val httpImages = ArrayList<String>()
 
         if (allUrlImages != null) {
+            var maxArea = 0
             for (img in allUrlImages) {
                 //Log.e("NewsFetcher", "img found in url: $img")
                 // extract attributes i.e. src from the current image element
@@ -45,15 +54,58 @@ open class NewsFetcher(listener: NewsListener) {
                 // a local path, since they have shown up
                 val attributes = img.attributes()
 
-                if (attributes.hasKey("src")) {
-                    val srcElement = attributes.get("src")
+                // Found an image source
+                if (attributes.hasKey(ATTR_SRC)) {
+                    val srcImgUrlPath = attributes.get(ATTR_SRC)
 
                     // Allow ONLY http images
                     // Local ones are removed.. we can't show those or load them async here
-                    if (srcElement.contains("http") || srcElement.contains("https")) {
-                        //Log.e("test", "found HTTP img: $img")
-                        httpImages.add(srcElement)
-                        break // todo - we need to find the BEST image, not just the first one.....
+                    if (srcImgUrlPath.contains("http") || srcImgUrlPath.contains("https")) {
+                        var imgWidth = 0
+                        var imgHeight = 0
+
+                        // Add this url path to the end of the list
+                        httpImages.add(srcImgUrlPath)
+
+                        // Check for width and height
+                        // And check for a valid value for both
+                        if (attributes.hasDeclaredValueForKey(ATTR_WIDTH)
+                            && attributes.hasDeclaredValueForKey(ATTR_HEIGHT)
+                        ) {
+                            // Need a try here because some numbers can be
+                            // incorrectly formatted i.e. 'auto' or '230px'..
+                            // Ignore those images
+                            try {
+                                // Parse width and height
+                                imgWidth = attributes.get(ATTR_WIDTH).toInt()
+                                imgHeight = attributes.get(ATTR_HEIGHT).toInt()
+
+                                // Calculate area
+                                // Make sure its at least 250 x 250 in area size to guarantee decent
+                                // preview in the main story list
+                                val area = imgWidth * imgHeight
+                                if (area > maxArea && area >= (PREVIEW_WIDTH * PREVIEW_HEIGHT)) {
+
+                                    maxArea = area
+                                    // Remove the current http image from the list (from the end)
+                                    // And add it to the beginning, that way when we retrieve the first
+                                    // item for display later.. it'll always be the best one
+                                    if (httpImages.size > 1) {
+                                        // ONLY do the remove-and-insert-front if the http
+                                        // list has at least 2 items..otherwise it's already been
+                                        // inserted at the front
+                                        httpImages.remove(srcImgUrlPath)
+                                        httpImages.add(0, srcImgUrlPath)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e(
+                                    "NewsFetcher",
+                                    "Exception occurred while parsing image dimensions. e: "
+                                            + e.message
+                                )
+                            }
+                        }
                     }
                 }
             }

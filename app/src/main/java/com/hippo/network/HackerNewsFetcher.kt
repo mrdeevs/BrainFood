@@ -201,8 +201,8 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                             HACKER_NEWS_SOURCE,
 
                             // Check for valid image
-                            // todo - instead of taking the first image here [0]
-                            // todo use area and w x h to calculate the best header image / preview
+                            // This list is sorted by area, taking the first image here [0]
+                            // will return the best header image / preview automatically
                             if (imgSrc != null && imgSrc.isNotEmpty())
                                 imgSrc[0]
                             else
