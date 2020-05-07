@@ -22,6 +22,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
     private lateinit var storiesViewModel: StoryViewModel
 
+    private var lastStoryIndex = -1 // -1 is important here, can't be anything else
+
     companion object {
         const val LOADING_INTERVAL_COUNT = 25
     }
@@ -47,11 +49,9 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
             stories?.let { adapter.setStories(it) }
         })
 
-        // todo - testing RANGE pagination
         // Make a network request to acquire all of the
         // top stories from various news outlets, and break it down into list format
-        val newsFetch = HackerNewsFetcher(this)
-        newsFetch.fetchNews(0, LOADING_INTERVAL_COUNT)
+        fetchNextNewsRange(0)
     }
 
     override fun onNewsAvailable(results: List<Story>) {
@@ -71,7 +71,13 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
         }
     }
 
-    private inner class NewsScrollListener: RecyclerView.OnScrollListener() {
+    private fun fetchNextNewsRange(first: Int) {
+        val newsFetch = HackerNewsFetcher(this)
+        lastStoryIndex += LOADING_INTERVAL_COUNT
+        newsFetch.fetchNews(first, lastStoryIndex)
+    }
+
+    private inner class NewsScrollListener : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
             //Log.e(this.javaClass.simpleName, "onSCrolled: dx: $dx dy: $dy")
@@ -79,11 +85,33 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            
+
             when (newState) {
-                RecyclerView.SCROLL_STATE_DRAGGING -> Log.e(this.javaClass.simpleName,"Dragging")
-                RecyclerView.SCROLL_STATE_IDLE -> Log.e(this.javaClass.simpleName,"Idle")
-                RecyclerView.SCROLL_STATE_SETTLING -> Log.e(this.javaClass.simpleName,"Settling")
+                // Dragging: moving
+                //RecyclerView.SCROLL_STATE_DRAGGING ->
+                //Log.e(this.javaClass.simpleName, "Dragging")
+
+                // Idle: Resting
+                RecyclerView.SCROLL_STATE_IDLE -> {
+                    Log.e(this.javaClass.simpleName, "Idle")
+
+                    // Check if we're at the bottom..
+                    if (!recyclerView.canScrollVertically(1)) {
+                        Log.e(this.javaClass.simpleName, "Bottom reached!")
+
+                        // Fetch the next range of stories
+                        runOnUiThread {
+                            findViewById<ProgressBar>(R.id.news_feed_progress).visibility =
+                                View.VISIBLE
+                        }
+
+                        fetchNextNewsRange(lastStoryIndex + 1)
+                    }
+                }
+
+                // Settling: About to stop moving soon
+                //RecyclerView.SCROLL_STATE_SETTLING ->
+                //Log.e(this.javaClass.simpleName, "Settling")
             }
         }
     }
