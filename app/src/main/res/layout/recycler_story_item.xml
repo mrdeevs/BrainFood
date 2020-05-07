@@ -5,6 +5,14 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <ImageView
+        android:id="@+id/story_item_image"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@android:color/white"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_launcher_foreground" />
+
     <TextView
         android:id="@+id/story_item_title"
         style="@style/story_title"
@@ -23,14 +31,6 @@
         android:text="Sample"
         android:textColor="@android:color/black"
         android:textStyle="bold" />
-
-    <ImageView
-        android:id="@+id/story_item_image"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        android:background="@android:color/white"
-        android:src="@drawable/ic_launcher_foreground" />
 
     <TextView
         android:id="@+id/story_item_description"

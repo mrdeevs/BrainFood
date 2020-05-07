@@ -48,9 +48,9 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
     }
 
     override fun onNewsAvailable(results: List<Story>) {
-        Log.e("NewsFeed", "onNewsAvailable count: ${results.size}")
+        Log.e("NewsFeedActivity", "onNewsAvailable count: ${results.size}")
 
-        for(newStory in results) {
+        for (newStory in results) {
             // INSERT
             // Insert new story into db
             storiesViewModel.insert(newStory)

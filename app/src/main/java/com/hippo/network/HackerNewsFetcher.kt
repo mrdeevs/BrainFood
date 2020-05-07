@@ -133,7 +133,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
      * Takes a valid response of List<JSONObject> that contains the News data
      * and converts it into our database friendly (Room) class of a Story for each
      * */
-    override fun convertStoryJsonToStories(results: List<JSONObject>) : List<Story> {
+    override fun convertStoryJsonToStories(results: List<JSONObject>): List<Story> {
         val output: ArrayList<Story> = ArrayList()
         // For each story found
         // Create a new constructor of Story data class

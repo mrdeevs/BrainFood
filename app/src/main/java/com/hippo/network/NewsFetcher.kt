@@ -38,7 +38,7 @@ open class NewsFetcher(listener: NewsListener) {
 
         if (allUrlImages != null) {
             for (img in allUrlImages) {
-                Log.e("NewsFetcher", "img found in url: $img")
+                //Log.e("NewsFetcher", "img found in url: $img")
                 // extract attributes i.e. src from the current image element
                 // then check for the actual src attribute
                 // then we need to check for http to make sure its a valid remote image, not
