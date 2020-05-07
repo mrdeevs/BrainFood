@@ -16,7 +16,7 @@ open class NewsFetcher(listener: NewsListener) {
 
     protected val mCallback = listener
     protected val mClient = OkHttpClient()
-    protected val mUtils = HippoUtils()
+    private val mUtils = HippoUtils()
 
     protected open fun fetchNews() {}
 
