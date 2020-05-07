@@ -27,7 +27,7 @@ open class NewsFetcher(listener: NewsListener) {
     protected val mClient = OkHttpClient()
     private val mUtils = HippoUtils()
 
-    protected open fun fetchNews() {}
+    protected open fun fetchNews(firstStoryIndex: Int, lastStoryIndex: Int) {}
 
     protected open fun convertStoryJsonToStories(results: List<JSONObject>): List<Story> {
         return ArrayList()

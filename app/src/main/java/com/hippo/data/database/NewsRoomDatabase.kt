@@ -34,7 +34,8 @@ abstract class NewsRoomDatabase : RoomDatabase() {
 
         suspend fun clearDatabase(storiesDao: StoryDao) {
             // Delete all old news here.
-            storiesDao.deleteAll()
+            // todo test not deleting all, we want to just append
+            //storiesDao.deleteAll()
         }
     }
 

@@ -22,16 +22,22 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
     private lateinit var storiesViewModel: StoryViewModel
 
+    companion object {
+        const val LOADING_INTERVAL_COUNT = 25
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.news_main)
 
         // List of stories
         // Adapter and layout manager
+        // Add a scroll listener here
         val recyclerView = findViewById<RecyclerView>(R.id.news_recycler_view)
         val adapter = NewsListAdapter(this)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.addOnScrollListener(NewsScrollListener())
 
         // Stories view model init
         // Setup an observer to listen for data changes in the view model backing data
@@ -41,10 +47,11 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
             stories?.let { adapter.setStories(it) }
         })
 
+        // todo - testing RANGE pagination
         // Make a network request to acquire all of the
         // top stories from various news outlets, and break it down into list format
         val newsFetch = HackerNewsFetcher(this)
-        newsFetch.fetchNews()
+        newsFetch.fetchNews(0, LOADING_INTERVAL_COUNT)
     }
 
     override fun onNewsAvailable(results: List<Story>) {
@@ -61,6 +68,23 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
         runOnUiThread {
             findViewById<ProgressBar>(R.id.news_feed_progress).visibility = View.GONE
             findViewById<RecyclerView>(R.id.news_recycler_view).visibility = View.VISIBLE
+        }
+    }
+
+    private inner class NewsScrollListener: RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            //Log.e(this.javaClass.simpleName, "onSCrolled: dx: $dx dy: $dy")
+        }
+
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+            
+            when (newState) {
+                RecyclerView.SCROLL_STATE_DRAGGING -> Log.e(this.javaClass.simpleName,"Dragging")
+                RecyclerView.SCROLL_STATE_IDLE -> Log.e(this.javaClass.simpleName,"Idle")
+                RecyclerView.SCROLL_STATE_SETTLING -> Log.e(this.javaClass.simpleName,"Settling")
+            }
         }
     }
 }

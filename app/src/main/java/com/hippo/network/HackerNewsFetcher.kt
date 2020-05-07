@@ -30,7 +30,10 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         const val HACKER_NEWS_SOURCE = "hacker"
     }
 
-    public override fun fetchNews() {
+    /**
+     * Attempts to pull a range of news stories from the API
+     * */
+    public override fun fetchNews(firstStoryIndex: Int, lastStoryIndex: Int) {
         // Builds a GET request to the top stories of
         // hacker news
         var storyIds: JSONArray?
@@ -55,8 +58,33 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                         // Convert the body to a String
                         // Convert the String into a List using comma separators
                         storyIds = JSONArray(storiesAsJson)
-                        //Log.e("HackerNewsRepository", "story Ids: $storyIds")
-                        fetchNewsItems(storyIds)
+
+                        // Ensure list of story ids is valid and not empty
+                        if (storyIds != null && storyIds!!.length() > 0) {
+                            // Ensure range checking on the first and last index
+                            // Also make sure last > first
+                            if (firstStoryIndex >= 0 && firstStoryIndex < storyIds!!.length()
+                                && lastStoryIndex >= 0 && lastStoryIndex < storyIds!!.length()
+                                && lastStoryIndex >= firstStoryIndex) {
+                                // Filter down to the specified range:
+                                // [firstStoryIndex, lastStoryIndex]
+                                val filteredRange = JSONArray()
+                                for (i in firstStoryIndex..lastStoryIndex) {
+                                    filteredRange.put(storyIds!![i])
+                                }
+
+                                Log.e(this.javaClass.simpleName, "story ids valid, start index: $firstStoryIndex, last index: $lastStoryIndex")
+                                fetchNewsItems(filteredRange)
+
+                            } else {
+                                // Indicates that an invalid range was passed in
+                                // and therefore we can't parse. Return empty
+                                fetchNewsItems(null)
+                            }
+                        } else {
+                            // story IDs is empty or null, return an empty set
+                            fetchNewsItems(null)
+                        }
                     }
                 }
             }
