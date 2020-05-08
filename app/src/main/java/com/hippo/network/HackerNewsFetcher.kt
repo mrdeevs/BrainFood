@@ -20,13 +20,9 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         const val JSON_TYPE = "type"
         const val JSON_URL = "url"
         const val JSON_TYPE_STORY = "story"
-        const val JSON_TYPE_JOB = "job"
-        const val JSON_TYPE_COMMENT = "comment"
-        const val JSON_TYPE_POLL = "poll"
-        const val JSON_TYPE_POLL_OPT = "pollopt"
         const val JSON_NONE = "none"
 
-        // Class constants
+        // Class constants for various news sources / API
         const val HACKER_NEWS_SOURCE = "hacker"
     }
 
@@ -166,7 +162,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         // For each story found
         // Create a new constructor of Story data class
         // Insert it into the database underneath
-        var index: Int = 0
+        var index = 0
 
         for (storyJson in results) {
             // Check for empty story json, which means its an invalid item and should be ignored
