@@ -16,42 +16,28 @@
         android:gravity="center"
         android:maxLines="2"
         android:paddingStart="@dimen/story_item_padding_start_end"
-        android:paddingTop="26dp"
+        android:paddingTop="28dp"
         android:paddingEnd="@dimen/story_item_padding_start_end"
-        android:paddingBottom="26dp"
+        android:paddingBottom="18dp"
         android:text="Berkshire Hathaway's Annual meeting"
         android:textColor="#666666"
         android:textStyle="bold" />
 
-    <LinearLayout
-        android:id="@+id/authorTimeParent"
+    <TextView
+        android:id="@+id/story_item_author_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_weight="0.5"
         android:background="@color/storyItemBg"
-        android:weightSum="1.0">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:gravity="end"
-            android:fontFamily="sans-serif-condensed-light"
-            android:textStyle="italic"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:text="by sjhsharon" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:textStyle="italic"
-            android:fontFamily="sans-serif-condensed-light"
-            android:text="6 hours ago" />
-    </LinearLayout>
+        android:fontFamily="sans-serif-condensed-light"
+        android:gravity="center"
+        android:paddingStart="4dp"
+        android:paddingEnd="2dp"
+        android:paddingBottom="24dp"
+        android:text="@string/story_author_and_date"
+        android:textColor="#55333333"
+        android:textSize="12dp"
+        android:textStyle="italic" />
 
     <ImageView
         android:id="@+id/story_item_image"

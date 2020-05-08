@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.hippo.data.Story
 import com.hippo.news.NewsPreviewActivity
 import com.hippo.news.R
+import java.util.*
 
 class NewsListAdapter internal constructor(context: Context) :
     RecyclerView.Adapter<NewsListAdapter.StoryViewHolder>() {
@@ -22,9 +23,10 @@ class NewsListAdapter internal constructor(context: Context) :
     inner class StoryViewHolder(storyView: View) : RecyclerView.ViewHolder(storyView),
         View.OnClickListener {
 
-        val storyTitleTextView: TextView = storyView.findViewById(R.id.story_item_title)
-        val storyDescTextView: TextView = storyView.findViewById(R.id.story_item_description)
-        val storyImageView: ImageView = storyView.findViewById(R.id.story_item_image)
+        val storyTitleText: TextView = storyView.findViewById(R.id.story_item_title)
+        val storyDescText: TextView = storyView.findViewById(R.id.story_item_description)
+        val storyAuthorDateText: TextView = storyView.findViewById(R.id.story_item_author_date)
+        val storyImage: ImageView = storyView.findViewById(R.id.story_item_image)
 
         init {
             // View holders handle their own events
@@ -51,23 +53,31 @@ class NewsListAdapter internal constructor(context: Context) :
 
         // Set the title
         // Set the description text
-        holder.storyTitleTextView.text = current.title
-        holder.storyDescTextView.text = current.url
+        holder.storyTitleText.text = current.title
+        holder.storyDescText.text = current.url
+
+        // Author | Timestamp
+        // Convert time delta from milliseconds to seconds to hours ago
+        val curTime = System.currentTimeMillis()
+        val timeDeltaDate = Date(curTime - current.time)
+        // Formatting
+        holder.storyAuthorDateText.text =
+            holder.itemView.context.getString(R.string.story_author_and_date, current.by, timeDeltaDate.toString())
 
         // Async load the image URL into image view
         // Only load non-empty valid urls
         if (!current.image.isNullOrEmpty()) {
             // Turn on the image, we found a url
-            holder.storyImageView.visibility = View.VISIBLE
-            Glide.with(holder.storyImageView.context)
+            holder.storyImage.visibility = View.VISIBLE
+            Glide.with(holder.storyImage.context)
                 .load(current.image)
                 .centerCrop()
-                .into(holder.storyImageView)
+                .into(holder.storyImage)
         } else {
             // Clear the resource
             // Hide the image view so the UI doesn't take up space
-            Glide.with(holder.storyImageView.context).clear(holder.storyImageView)
-            holder.storyImageView.visibility = View.GONE
+            Glide.with(holder.storyImage.context).clear(holder.storyImage)
+            holder.storyImage.visibility = View.GONE
         }
     }
 

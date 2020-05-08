@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">HippoNews</string>
+    <string name="app_name">Brain Food</string>
+    <string name="story_author_and_date">by %1$s     |     %2$s</string>
 </resources>
