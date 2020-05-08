@@ -61,8 +61,8 @@ open class NewsFetcher(listener: NewsListener) {
                     // Allow ONLY http images
                     // Local ones are removed.. we can't show those or load them async here
                     if (srcImgUrlPath.contains("http") || srcImgUrlPath.contains("https")) {
-                        var imgWidth = 0
-                        var imgHeight = 0
+                        var imgWidth: Int
+                        var imgHeight: Int
 
                         // Add this url path to the end of the list
                         httpImages.add(srcImgUrlPath)

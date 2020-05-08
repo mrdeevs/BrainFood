@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="story_item_padding_start_end">26dp</dimen>
+    <dimen name="story_item_padding_start_end">30dp</dimen>
 </resources>

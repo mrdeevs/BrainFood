@@ -26,7 +26,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
     private var lastStoryIndex = -1 // -1 is important here, can't be anything else
 
     companion object {
-        const val LOADING_INTERVAL_COUNT = 25
+        const val LOADING_INTERVAL_COUNT = 20
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -211,6 +211,8 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                     if (urlJson != JSON_NONE) {
                         // todo add optional checks for unique id, by, time, title, type
                         // todo - move to a background thread / co-routine
+
+                        // img. url path
                         // EXPENSIVE.. wow
                         val imgSrc = extractImagesFromStoryUrl(urlJson)
                         //Log.e("test", "imgSrc as str: " + imgSrc.toString())
