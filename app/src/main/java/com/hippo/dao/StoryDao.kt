@@ -10,7 +10,7 @@ import com.hippo.data.Story
 @Dao
 interface StoryDao {
 
-    @Query("SELECT * from stories ORDER BY score DESC")
+    @Query("SELECT * from stories ORDER BY time DESC")
     fun getBestStories(): LiveData<List<Story>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

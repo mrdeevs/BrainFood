@@ -11,8 +11,8 @@ import java.lang.Exception
 open class NewsFetcher(listener: NewsListener) {
 
     companion object {
-        const val PREVIEW_WIDTH = 250
-        const val PREVIEW_HEIGHT = 250
+        const val MIN_PREVIEW_WIDTH = 650
+        const val MIN_PREVIEW_HEIGHT = 900
         const val ATTR_WIDTH = "width"
         const val ATTR_HEIGHT = "height"
         const val ATTR_SRC = "src"
@@ -70,8 +70,7 @@ open class NewsFetcher(listener: NewsListener) {
                         // Check for width and height
                         // And check for a valid value for both
                         if (attributes.hasDeclaredValueForKey(ATTR_WIDTH)
-                            && attributes.hasDeclaredValueForKey(ATTR_HEIGHT)
-                        ) {
+                            && attributes.hasDeclaredValueForKey(ATTR_HEIGHT)) {
                             // Need a try here because some numbers can be
                             // incorrectly formatted i.e. 'auto' or '230px'..
                             // Ignore those images
@@ -84,7 +83,7 @@ open class NewsFetcher(listener: NewsListener) {
                                 // Make sure its at least 250 x 250 in area size to guarantee decent
                                 // preview in the main story list
                                 val area = imgWidth * imgHeight
-                                if (area > maxArea && area >= (PREVIEW_WIDTH * PREVIEW_HEIGHT)) {
+                                if (area > maxArea && area >= (MIN_PREVIEW_WIDTH * MIN_PREVIEW_HEIGHT)) {
 
                                     maxArea = area
                                     // Remove the current http image from the list (from the end)
