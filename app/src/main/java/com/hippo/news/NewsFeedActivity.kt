@@ -38,7 +38,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private var feedFilter = FeedFilter.Newest
 
     companion object {
-        const val LOADING_INTERVAL_COUNT = 20
+        const val LOADING_INTERVAL_COUNT = 15
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -185,17 +185,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
             // Update the checked item
             when (item.itemId) {
-                R.id.action_filter_newest -> {
-                    item.isChecked = true
-                    return true
-                }
-
-                R.id.action_filter_top -> {
-                    item.isChecked = true
-                    return true
-                }
-
-                R.id.action_filter_trending -> {
+                R.id.action_filter_newest, R.id.action_filter_top, R.id.action_filter_trending -> {
                     item.isChecked = true
                     return true
                 }
