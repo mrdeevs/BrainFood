@@ -110,6 +110,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                         }
 
                         fetchNextNewsRange(lastStoryIndex + 1)
+
                     } else {
                         Log.e(this.javaClass.simpleName, "Already loading or not at bottom yet...")
                     }
