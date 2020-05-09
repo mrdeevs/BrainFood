@@ -46,13 +46,13 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         setContentView(R.layout.news_main)
         setSupportActionBar(findViewById(R.id.news_toolbar))
 
-        // filter news popup
+        // Filter news popup
         filterPopup = PopupMenu(this, findViewById(R.id.action_filter))
         val inflater: MenuInflater = filterPopup.menuInflater
         inflater.inflate(R.menu.menu_filter_feed, filterPopup.menu)
         filterPopup.setOnMenuItemClickListener(this)
 
-        // hacker news api
+        // Hacker news API fetcher
         newsFetcher = HackerNewsFetcher(this)
 
         // List of stories
