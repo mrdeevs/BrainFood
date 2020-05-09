@@ -9,6 +9,8 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.get
+import androidx.core.view.size
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,6 +32,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
     private lateinit var storiesViewModel: StoryViewModel
     private lateinit var newsFetcher: HackerNewsFetcher
+    private lateinit var filterPopup: PopupMenu
     private var isLoading: Boolean = false
     private var lastStoryIndex = -1 // -1 is important here
     private var feedFilter = FeedFilter.Newest
@@ -43,6 +46,13 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         setContentView(R.layout.news_main)
         setSupportActionBar(findViewById(R.id.news_toolbar))
 
+        // filter news popup
+        filterPopup = PopupMenu(this, findViewById(R.id.action_filter))
+        val inflater: MenuInflater = filterPopup.menuInflater
+        inflater.inflate(R.menu.menu_filter_feed, filterPopup.menu)
+        filterPopup.setOnMenuItemClickListener(this)
+
+        // hacker news api
         newsFetcher = HackerNewsFetcher(this)
 
         // List of stories
@@ -74,11 +84,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     }
 
     private fun showFilterPopup(v: View) {
-        val popup = PopupMenu(this, v)
-        val inflater: MenuInflater = popup.menuInflater
-        inflater.inflate(R.menu.menu_filter_feed, popup.menu)
-        popup.setOnMenuItemClickListener(this)
-        popup.show()
+        filterPopup.show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
@@ -171,23 +177,26 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         if (item != null) {
-            when (item.itemId) {
 
-                R.id.action_filter_newest ->  {
-                    Log.e("test", "newest filter hit")
-                    item.subMenu.getItem(0).isChecked = !item.isChecked
+            // Clear any existing checked items
+            for(i in 0 until filterPopup.menu.size()) {
+                filterPopup.menu.getItem(i).isChecked = false
+            }
+
+            // Update the checked item
+            when (item.itemId) {
+                R.id.action_filter_newest -> {
+                    item.isChecked = true
                     return true
                 }
 
                 R.id.action_filter_top -> {
-                    Log.e("test", "top filter hit")
-                    item.subMenu.getItem(0).isChecked = !item.isChecked
+                    item.isChecked = true
                     return true
                 }
 
                 R.id.action_filter_trending -> {
-                    Log.e("test", "trending filter hit")
-                    item.subMenu.getItem(0).isChecked = !item.isChecked
+                    item.isChecked = true
                     return true
                 }
             }
