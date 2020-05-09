@@ -8,7 +8,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
-import androidx.core.view.children
+import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,7 +19,8 @@ import com.hippo.network.HackerNewsFetcher
 import com.hippo.network.NewsFetcher
 import com.hippo.viewmodel.StoryViewModel
 
-class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
+class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
+    PopupMenu.OnMenuItemClickListener {
 
     private enum class FeedFilter {
         Newest,
@@ -72,40 +73,25 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
         return true
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        if(menu != null) {
-            val filterModes = FeedFilter.values()
-            for (i in filterModes.indices) {
-                menu.children.elementAt(i).isChecked = feedFilter == filterModes[i]
-            }
-        }
-
-        return super.onPrepareOptionsMenu(menu)
+    private fun showFilterPopup(v: View) {
+        val popup = PopupMenu(this, v)
+        val inflater: MenuInflater = popup.menuInflater
+        inflater.inflate(R.menu.menu_filter_feed, popup.menu)
+        popup.setOnMenuItemClickListener(this)
+        popup.show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        // todo - clear the existing recycler view content
-        // todo - fetch different news via different API endpoint
-        // todo - show progress bar
-        // todo -
-        R.id.action_sort_new -> {
-            // User chose to sort by newest stories
-            feedFilter = FeedFilter.Newest
-            item.isChecked = !item.isChecked
+        // Filter by newest, top or trending
+        R.id.action_filter -> {
+            // User chose to sort
+            showFilterPopup(findViewById(R.id.action_filter))
             true
         }
 
-        R.id.action_sort_top -> {
-            // User chose to sort by top story articles
-            feedFilter = FeedFilter.Top
-            item.isChecked = !item.isChecked
-            true
-        }
-
-        R.id.action_sort_trending -> {
-            // User chose to sort by trending articles
-            feedFilter = FeedFilter.Trending
-            item.isChecked = !item.isChecked
+        R.id.action_settings -> {
+            // User wants to open settings
+            // todo open settings activity
             true
         }
 
@@ -181,5 +167,32 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
                 //Log.e(this.javaClass.simpleName, "Settling")
             }
         }
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        if (item != null) {
+            when (item.itemId) {
+
+                R.id.action_filter_newest ->  {
+                    Log.e("test", "newest filter hit")
+                    item.subMenu.getItem(0).isChecked = !item.isChecked
+                    return true
+                }
+
+                R.id.action_filter_top -> {
+                    Log.e("test", "top filter hit")
+                    item.subMenu.getItem(0).isChecked = !item.isChecked
+                    return true
+                }
+
+                R.id.action_filter_trending -> {
+                    Log.e("test", "trending filter hit")
+                    item.subMenu.getItem(0).isChecked = !item.isChecked
+                    return true
+                }
+            }
+        }
+
+        return false
     }
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<group android:checkableBehavior="single">
+    <item
+        android:id="@+id/action_filter_newest"
+        android:title="@string/menu_feed_new"
+        android:checked="true"
+        android:checkable="true"/>
+
+    <item
+        android:id="@+id/action_filter_top"
+        android:title="@string/menu_feed_top"
+        android:checked="false"
+        android:checkable="true"/>
+
+    <item
+        android:id="@+id/action_filter_trending"
+        android:title="@string/menu_feed_trend"
+        android:checked="false"
+        android:checkable="true"/>
+</group>
+</menu>

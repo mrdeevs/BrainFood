@@ -3,7 +3,10 @@
     <string name="story_author_and_date">by %1$s     |     %2$s</string>
 
     <!-- menu strings for news feed -->
+    <string name="menu_settings">Settings</string>
+    <string name="menu_filter">Filter</string>
     <string name="menu_feed_new">Newest</string>
     <string name="menu_feed_top">Top</string>
     <string name="menu_feed_trend">Trending</string>
+
 </resources>
