@@ -3,8 +3,12 @@ package com.hippo.news
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
+import androidx.core.view.children
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,17 +17,21 @@ import com.hippo.adapter.NewsListAdapter
 import com.hippo.data.Story
 import com.hippo.network.HackerNewsFetcher
 import com.hippo.network.NewsFetcher
-import com.hippo.utils.HippoUtils
 import com.hippo.viewmodel.StoryViewModel
-import org.json.JSONObject
-import org.jsoup.select.Elements
 
 class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
 
-    private lateinit var storiesViewModel: StoryViewModel
+    private enum class FeedFilter {
+        Newest,
+        Top,
+        Trending
+    }
 
+    private lateinit var storiesViewModel: StoryViewModel
+    private lateinit var newsFetcher: HackerNewsFetcher
     private var isLoading: Boolean = false
-    private var lastStoryIndex = -1 // -1 is important here, can't be anything else
+    private var lastStoryIndex = -1 // -1 is important here
+    private var feedFilter = FeedFilter.Newest
 
     companion object {
         const val LOADING_INTERVAL_COUNT = 20
@@ -32,6 +40,9 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.news_main)
+        setSupportActionBar(findViewById(R.id.news_toolbar))
+
+        newsFetcher = HackerNewsFetcher(this)
 
         // List of stories
         // Adapter and layout manager
@@ -55,6 +66,56 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
         fetchNextNewsRange(0)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.menu_news_feed, menu)
+        return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        if(menu != null) {
+            val filterModes = FeedFilter.values()
+            for (i in filterModes.indices) {
+                menu.children.elementAt(i).isChecked = feedFilter == filterModes[i]
+            }
+        }
+
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        // todo - clear the existing recycler view content
+        // todo - fetch different news via different API endpoint
+        // todo - show progress bar
+        // todo -
+        R.id.action_sort_new -> {
+            // User chose to sort by newest stories
+            feedFilter = FeedFilter.Newest
+            item.isChecked = !item.isChecked
+            true
+        }
+
+        R.id.action_sort_top -> {
+            // User chose to sort by top story articles
+            feedFilter = FeedFilter.Top
+            item.isChecked = !item.isChecked
+            true
+        }
+
+        R.id.action_sort_trending -> {
+            // User chose to sort by trending articles
+            feedFilter = FeedFilter.Trending
+            item.isChecked = !item.isChecked
+            true
+        }
+
+        else -> {
+            // If we got here, the user's action was not recognized.
+            // Invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onNewsAvailable(results: List<Story>) {
         Log.e("NewsFeedActivity", "onNewsAvailable count: ${results.size}")
 
@@ -75,9 +136,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener {
     }
 
     private fun fetchNextNewsRange(first: Int) {
-        val newsFetch = HackerNewsFetcher(this)
         lastStoryIndex += LOADING_INTERVAL_COUNT
-        newsFetch.fetchNews(first, lastStoryIndex)
+        newsFetcher.fetchNews(first, lastStoryIndex)
         isLoading = true
     }
 

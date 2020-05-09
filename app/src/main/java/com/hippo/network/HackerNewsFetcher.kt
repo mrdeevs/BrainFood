@@ -34,7 +34,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         // hacker news
         var storyIds: JSONArray?
         val request = Request.Builder()
-            .url(BuildConfig.URL_HACKER_NEWS_BEST)
+            .url(BuildConfig.URL_HACKER_NEWS_NEW)
             .build()
 
         mClient.newCall(request).enqueue(object : Callback {
