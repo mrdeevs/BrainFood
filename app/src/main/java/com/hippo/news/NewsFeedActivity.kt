@@ -9,6 +9,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -28,7 +29,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private lateinit var filterPopup: PopupMenu
     private lateinit var newsAdapter: NewsListAdapter
     private var isLoading: Boolean = false
-    private var curStoryIndex: Int = STARTING_STORY_INDEX
+    private var storyDataIndex: Int = STARTING_STORY_INDEX
     private var feedCategory = NewsFetcher.NewsCategory.Newest
 
     companion object {
@@ -63,22 +64,22 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Stories view model init
         // Setup an observer to listen for data changes in the view model backing data
         storiesViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
-
         // Update who we listen to for db results
         updateViewModelObserversFromCategory()
 
         // Remember the last data index, so that we can allow our cached data to
         // already be loaded on fresh app restarts
-        curStoryIndex = this.getPreferences(Context.MODE_PRIVATE)
+        storyDataIndex = this.getPreferences(Context.MODE_PRIVATE)
             .getInt(PREF_STORY_DATA_INDEX, STARTING_STORY_INDEX)
 
-        Log.e(this.localClassName, "lastStoryIndex updated (onCreate): $curStoryIndex")
+        // Log.e(this.localClassName, "lastStoryIndex updated (onCreate): $storyDataIndex")
         // Only necessary on the first run, otherwise we'll use cached data
-        if (curStoryIndex == STARTING_STORY_INDEX) {
-            Log.e(this.localClassName, "loading fetchNextNewsRange in onCreate()")
+        if (storyDataIndex == STARTING_STORY_INDEX) {
+            //Log.e(this.localClassName, "loading fetchNextNewsRange in onCreate()")
             // Make a network request to acquire all of the
             // top stories from various news outlets, and break it down into list format
-            fetchNextNewsRange(0, true, false)
+            fetchNextNewsRange(0, hideList = true, clearDb = false)
+
         } else {
             showNewsList()
         }
@@ -93,8 +94,13 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         // Filter by newest, top or trending
         R.id.action_filter -> {
-            // User chose to sort, show the options
-            filterPopup.show()
+            if (!isLoading) {
+                // User chose to sort, show the options
+                filterPopup.show()
+            } else {
+                // We're in the middle of refreshing the feed, show a message
+                Toast.makeText(applicationContext, "Currently loading, try again later", Toast.LENGTH_SHORT).show()
+            }
             true
         }
 
@@ -163,21 +169,24 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         showNewsList()
     }
 
-    private fun updateStoryDataIndex(dataIndex: Int) {
+    private fun setDataIndex(dataIndex: Int) {
         // Update existing member val
-        curStoryIndex = dataIndex
-        Log.e(this.localClassName, "lastStoryIndex updated: $curStoryIndex")
+        storyDataIndex = dataIndex
 
         // Match the backing pref
         this.getPreferences(Context.MODE_PRIVATE).edit()
-            .putInt(PREF_STORY_DATA_INDEX, curStoryIndex).apply()
+            .putInt(PREF_STORY_DATA_INDEX, storyDataIndex).apply()
     }
 
+    /**
+     * When changing feeds from i.e. new stories to best/trending stories,
+     * we need to change the feed type, reset the data index for retrieving stories,
+     * and update which observers listen to the database and update the view model
+     * */
     private fun switchFeedCategory(category: NewsFetcher.NewsCategory) {
-        //lastStoryIndex = -1
-        updateStoryDataIndex(STARTING_STORY_INDEX)
         feedCategory = category
-        fetchNextNewsRange(curStoryIndex + 1, hideList = true, clearDb = true)
+        setDataIndex(STARTING_STORY_INDEX)
+        fetchNextNewsRange(storyDataIndex + 1, hideList = true, clearDb = true)
         updateViewModelObserversFromCategory()
     }
 
@@ -230,15 +239,17 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * */
     private fun fetchNextNewsRange(first: Int, hideList: Boolean, clearDb: Boolean) {
         //lastStoryIndex += LOADING_INTERVAL_COUNT
-        updateStoryDataIndex(curStoryIndex + LOADING_INTERVAL_COUNT)
-        newsFetcher.fetchNews(first, curStoryIndex, feedCategory)
+        setDataIndex(storyDataIndex + LOADING_INTERVAL_COUNT)
+        newsFetcher.fetchNews(first, storyDataIndex, feedCategory)
         isLoading = true
 
         // Show the loading bar
         showLoading(hideList)
 
         // Clear the db
-        if (clearDb) storiesViewModel.deleteAll()
+        if (clearDb) {
+            storiesViewModel.deleteAll()
+        }
     }
 
     private inner class NewsScrollListener : RecyclerView.OnScrollListener() {
@@ -263,7 +274,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                         Log.e(this.javaClass.simpleName, "Bottom reached! About to load more...")
 
                         // Fetch the next range of stories
-                        fetchNextNewsRange(curStoryIndex + 1, false, false)
+                        fetchNextNewsRange(storyDataIndex + 1, false, false)
                     }
                 }
                 // Settling: About to stop moving soon
