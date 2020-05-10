@@ -8,15 +8,10 @@
             android:title="@string/menu_feed_new" />
 
         <item
-            android:id="@+id/action_filter_top"
+            android:id="@+id/action_filter_best"
             android:checkable="true"
             android:checked="false"
-            android:title="@string/menu_feed_top" />
+            android:title="@string/menu_feed_best" />
 
-        <item
-            android:id="@+id/action_filter_trending"
-            android:checkable="true"
-            android:checked="false"
-            android:title="@string/menu_feed_trend" />
     </group>
 </menu>

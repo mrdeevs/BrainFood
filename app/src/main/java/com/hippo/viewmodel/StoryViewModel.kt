@@ -19,13 +19,13 @@ class StoryViewModel(application: Application) : AndroidViewModel(application) {
     //   the UI when the data actually changes.
     // - Repository is completely separated from the UI through the ViewModel.
     val newStories: LiveData<List<Story>>
-    val topStories: LiveData<List<Story>>
+    val bestStories: LiveData<List<Story>>
 
     init {
         val storiesDao = NewsRoomDatabase.getDatabase(application, viewModelScope).storyDao()
         repository = NewsRepository(storiesDao)
         newStories = repository.newStories
-        topStories = repository.topStories
+        bestStories = repository.bestStories
     }
 
     /**

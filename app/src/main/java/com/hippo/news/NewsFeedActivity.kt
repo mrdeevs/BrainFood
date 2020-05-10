@@ -109,7 +109,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
             // Update the checked item
             when (item.itemId) {
-                R.id.action_filter_newest, R.id.action_filter_top, R.id.action_filter_trending -> {
+                R.id.action_filter_newest, R.id.action_filter_best -> {
 
                     item.isChecked = true
 
@@ -120,13 +120,9 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                         // Update who we listen to for db results
                         switchFeedCategory(NewsFetcher.NewsCategory.Newest)
 
-                    } else if (item.itemId == R.id.action_filter_top && feedCategory != NewsFetcher.NewsCategory.Top) {
+                    } else if (item.itemId == R.id.action_filter_best && feedCategory != NewsFetcher.NewsCategory.Best) {
                         // Update category endpoints to Top
-                        switchFeedCategory(NewsFetcher.NewsCategory.Top)
-
-                    } else if (item.itemId == R.id.action_filter_trending && feedCategory != NewsFetcher.NewsCategory.Trending) {
-                        // Update category endpoints to Trending
-                        switchFeedCategory(NewsFetcher.NewsCategory.Trending)
+                        switchFeedCategory(NewsFetcher.NewsCategory.Best)
                     }
 
                     return true
@@ -162,7 +158,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private fun updateViewModelObservers() {
         // Clear off the old observers
         storiesViewModel.newStories.removeObservers(this)
-        storiesViewModel.topStories.removeObservers(this)
+        storiesViewModel.bestStories.removeObservers(this)
 
         // Setup observer for the new data
         when (feedCategory) {
@@ -174,17 +170,9 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                 })
             }
 
-            NewsFetcher.NewsCategory.Top -> {
+            NewsFetcher.NewsCategory.Best -> {
                 // Observe the top stories
-                storiesViewModel.topStories.observe(this, Observer { stories ->
-                    // Update the cached copy of the words in the adapter.
-                    stories?.let { newsAdapter.setStories(it) }
-                })
-            }
-
-            NewsFetcher.NewsCategory.Trending -> {
-                // Observe the top stories
-                storiesViewModel.topStories.observe(this, Observer { stories ->
+                storiesViewModel.bestStories.observe(this, Observer { stories ->
                     // Update the cached copy of the words in the adapter.
                     stories?.let { newsAdapter.setStories(it) }
                 })

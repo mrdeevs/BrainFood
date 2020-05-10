@@ -14,7 +14,7 @@ interface StoryDao {
     fun getNewestStories(): LiveData<List<Story>>
 
     @Query("SELECT * from stories ORDER BY score DESC")
-    fun getTopStories(): LiveData<List<Story>>
+    fun getBestStories(): LiveData<List<Story>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(story: Story)

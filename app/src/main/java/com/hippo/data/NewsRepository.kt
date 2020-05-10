@@ -10,7 +10,7 @@ class NewsRepository(private val storyDao: StoryDao) {
     // Room executes all queries on a separate thread.
     // Observed LiveData will notify the observer when the data has changed.
     val newStories: LiveData<List<Story>> = storyDao.getNewestStories()
-    val topStories: LiveData<List<Story>> = storyDao.getTopStories()
+    val bestStories: LiveData<List<Story>> = storyDao.getBestStories()
 
     suspend fun insert(story: Story) {
         storyDao.insert(story)

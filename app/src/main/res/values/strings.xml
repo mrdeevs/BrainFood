@@ -6,7 +6,6 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_filter">Filter</string>
     <string name="menu_feed_new">Newest</string>
-    <string name="menu_feed_top">Top</string>
-    <string name="menu_feed_trend">Trending</string>
+    <string name="menu_feed_best">Best</string>
 
 </resources>

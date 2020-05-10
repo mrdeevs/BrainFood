@@ -20,8 +20,7 @@ open class NewsFetcher(listener: NewsListener) {
 
     enum class NewsCategory {
         Newest,
-        Top,
-        Trending
+        Best
     }
 
     // Callback for when the story data is ready from api

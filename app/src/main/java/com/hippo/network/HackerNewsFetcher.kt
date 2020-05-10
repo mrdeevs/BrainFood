@@ -37,7 +37,6 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
             .url(
                 when (category) {
                     NewsCategory.Newest -> BuildConfig.URL_HACKER_NEWS_NEW
-                    NewsCategory.Top -> BuildConfig.URL_HACKER_NEWS_TOP
                     else -> BuildConfig.URL_HACKER_NEWS_BEST
                 }
             )
