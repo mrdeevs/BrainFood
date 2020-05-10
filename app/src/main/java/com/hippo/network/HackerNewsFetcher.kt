@@ -178,8 +178,8 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                 // Only parse story types for now, we aren't interested in polls or jobs
                 // Ignore non-story type
                 if (storyType == JSON_TYPE_STORY) {
-
                     //Log.e("NewsFeed", "Creating news story: ${story.toString(4)}")
+
                     // Story score [Optional]
                     val storyScore =
                         if (storyJson.has(JSON_SCORE))

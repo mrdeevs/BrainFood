@@ -108,6 +108,26 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         }
     }
 
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        if (item != null) {
+
+            // Clear any existing checked items
+            for(i in 0 until filterPopup.menu.size()) {
+                filterPopup.menu.getItem(i).isChecked = false
+            }
+
+            // Update the checked item
+            when (item.itemId) {
+                R.id.action_filter_newest, R.id.action_filter_top, R.id.action_filter_trending -> {
+                    item.isChecked = true
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
     override fun onNewsAvailable(results: List<Story>) {
         Log.e("NewsFeedActivity", "onNewsAvailable count: ${results.size}")
 
@@ -173,25 +193,5 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                 //Log.e(this.javaClass.simpleName, "Settling")
             }
         }
-    }
-
-    override fun onMenuItemClick(item: MenuItem?): Boolean {
-        if (item != null) {
-
-            // Clear any existing checked items
-            for(i in 0 until filterPopup.menu.size()) {
-                filterPopup.menu.getItem(i).isChecked = false
-            }
-
-            // Update the checked item
-            when (item.itemId) {
-                R.id.action_filter_newest, R.id.action_filter_top, R.id.action_filter_trending -> {
-                    item.isChecked = true
-                    return true
-                }
-            }
-        }
-
-        return false
     }
 }
