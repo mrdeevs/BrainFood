@@ -9,8 +9,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.get
-import androidx.core.view.size
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,18 +22,13 @@ import com.hippo.viewmodel.StoryViewModel
 class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     PopupMenu.OnMenuItemClickListener {
 
-    private enum class FeedFilter {
-        Newest,
-        Top,
-        Trending
-    }
-
     private lateinit var storiesViewModel: StoryViewModel
     private lateinit var newsFetcher: HackerNewsFetcher
     private lateinit var filterPopup: PopupMenu
+    private lateinit var newsAdapter: NewsListAdapter
     private var isLoading: Boolean = false
     private var lastStoryIndex = -1 // -1 is important here
-    private var feedFilter = FeedFilter.Newest
+    private var feedCategory = NewsFetcher.NewsCategory.Newest
 
     companion object {
         const val LOADING_INTERVAL_COUNT = 15
@@ -59,32 +52,27 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Adapter and layout manager
         // Add a scroll listener here
         val recyclerView = findViewById<RecyclerView>(R.id.news_recycler_view)
-        val adapter = NewsListAdapter(this)
-        recyclerView.adapter = adapter
+        newsAdapter = NewsListAdapter(this)
+        recyclerView.adapter = newsAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.addOnScrollListener(NewsScrollListener())
 
         // Stories view model init
         // Setup an observer to listen for data changes in the view model backing data
         storiesViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
-        storiesViewModel.allStories.observe(this, Observer { stories ->
-            // Update the cached copy of the words in the adapter.
-            stories?.let { adapter.setStories(it) }
-        })
+
+        // Update who we listen to for db results
+        updateViewModelObservers()
 
         // Make a network request to acquire all of the
         // top stories from various news outlets, and break it down into list format
-        fetchNextNewsRange(0)
+        fetchNextNewsRange(0, true, false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.menu_news_feed, menu)
         return true
-    }
-
-    private fun showFilterPopup(v: View) {
-        filterPopup.show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
@@ -108,18 +96,47 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         }
     }
 
+    /**
+     * Popup menu callback for selecting a filtering mode for the news feed
+     * */
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         if (item != null) {
 
             // Clear any existing checked items
-            for(i in 0 until filterPopup.menu.size()) {
+            for (i in 0 until filterPopup.menu.size()) {
                 filterPopup.menu.getItem(i).isChecked = false
             }
 
             // Update the checked item
             when (item.itemId) {
                 R.id.action_filter_newest, R.id.action_filter_top, R.id.action_filter_trending -> {
+
                     item.isChecked = true
+
+                    // Filter the list for newest, clear the db and fetch new
+                    if (item.itemId == R.id.action_filter_newest && feedCategory != NewsFetcher.NewsCategory.Newest) {
+                        // Fetch the next range of stories
+                        // Update category endpoints to Newest
+                        // Update who we listen to for db results
+                        feedCategory = NewsFetcher.NewsCategory.Newest
+                        fetchNextNewsRange(lastStoryIndex + 1, true, true)
+                        updateViewModelObservers()
+
+                    } else if (item.itemId == R.id.action_filter_top && feedCategory != NewsFetcher.NewsCategory.Top) {
+                        // Fetch the next range of stories
+                        // Update category endpoints to Top
+                        feedCategory = NewsFetcher.NewsCategory.Top
+                        fetchNextNewsRange(lastStoryIndex + 1, true, true)
+                        updateViewModelObservers()
+
+                    } else if (item.itemId == R.id.action_filter_trending && feedCategory != NewsFetcher.NewsCategory.Trending) {
+                        // Fetch the next range of stories
+                        // Update category endpoints to Trending
+                        feedCategory = NewsFetcher.NewsCategory.Trending
+                        fetchNextNewsRange(lastStoryIndex + 1, true, true)
+                        updateViewModelObservers()
+                    }
+
                     return true
                 }
             }
@@ -139,18 +156,62 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
         isLoading = false
 
-        // Turn off the indeterminate spinner
-        // on the UI thread, and show the Recycler view list
+        // Show the Recycler view list
+        showNewsList()
+    }
+
+    private fun updateViewModelObservers() {
+        if (feedCategory == NewsFetcher.NewsCategory.Newest) {
+            // Observe the newest stories
+            storiesViewModel.newStories.observe(this, Observer { stories ->
+                // Update the cached copy of the words in the adapter.
+                stories?.let { newsAdapter.setStories(it) }
+            })
+        } else {
+            // Observe the top stories
+            storiesViewModel.topStories.observe(this, Observer { stories ->
+                // Update the cached copy of the words in the adapter.
+                stories?.let { newsAdapter.setStories(it) }
+            })
+        }
+    }
+
+    private fun showFilterPopup(v: View) {
+        filterPopup.show()
+    }
+
+    /**
+     * Turn off the indeterminate spinner on the UI thread, and show the Recycler view list
+     * */
+    private fun showNewsList() {
         runOnUiThread {
             findViewById<ProgressBar>(R.id.news_feed_progress).visibility = View.GONE
             findViewById<RecyclerView>(R.id.news_recycler_view).visibility = View.VISIBLE
         }
     }
 
-    private fun fetchNextNewsRange(first: Int) {
+    private fun showLoading(hideList: Boolean) {
+        runOnUiThread {
+            findViewById<ProgressBar>(R.id.news_feed_progress).visibility = View.VISIBLE
+            if (hideList)
+                findViewById<RecyclerView>(R.id.news_recycler_view).visibility = View.GONE
+        }
+    }
+
+    /**
+     * Make a network request to acquire all of the top stories from various
+     * news outlets, and break it down into list format
+     * */
+    private fun fetchNextNewsRange(first: Int, hideList: Boolean, clearDb: Boolean) {
         lastStoryIndex += LOADING_INTERVAL_COUNT
-        newsFetcher.fetchNews(first, lastStoryIndex)
+        newsFetcher.fetchNews(first, lastStoryIndex, feedCategory)
         isLoading = true
+
+        // Show the loading bar
+        showLoading(hideList)
+
+        // Clear the db
+        if (clearDb) storiesViewModel.deleteAll()
     }
 
     private inner class NewsScrollListener : RecyclerView.OnScrollListener() {
@@ -164,8 +225,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
             when (newState) {
                 // Dragging: moving
-                //RecyclerView.SCROLL_STATE_DRAGGING ->
-                //Log.e(this.javaClass.simpleName, "Dragging")
+                // RecyclerView.SCROLL_STATE_DRAGGING ->
+                // Log.e(this.javaClass.simpleName, "Dragging")
 
                 // Idle: Resting
                 RecyclerView.SCROLL_STATE_IDLE -> {
@@ -176,12 +237,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                         Log.e(this.javaClass.simpleName, "Bottom reached! About to load more...")
 
                         // Fetch the next range of stories
-                        runOnUiThread {
-                            findViewById<ProgressBar>(R.id.news_feed_progress).visibility =
-                                View.VISIBLE
-                        }
-
-                        fetchNextNewsRange(lastStoryIndex + 1)
+                        fetchNextNewsRange(lastStoryIndex + 1, false, false)
 
                     } else {
                         Log.e(this.javaClass.simpleName, "Already loading or not at bottom yet...")
@@ -189,8 +245,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                 }
 
                 // Settling: About to stop moving soon
-                //RecyclerView.SCROLL_STATE_SETTLING ->
-                //Log.e(this.javaClass.simpleName, "Settling")
+                // RecyclerView.SCROLL_STATE_SETTLING ->
+                // Log.e(this.javaClass.simpleName, "Settling")
             }
         }
     }

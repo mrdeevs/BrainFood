@@ -18,6 +18,12 @@ open class NewsFetcher(listener: NewsListener) {
         const val ATTR_SRC = "src"
     }
 
+    enum class NewsCategory {
+        Newest,
+        Top,
+        Trending
+    }
+
     // Callback for when the story data is ready from api
     interface NewsListener {
         fun onNewsAvailable(results: List<Story>)
@@ -27,7 +33,7 @@ open class NewsFetcher(listener: NewsListener) {
     protected val mClient = OkHttpClient()
     private val mUtils = HippoUtils()
 
-    protected open fun fetchNews(firstStoryIndex: Int, lastStoryIndex: Int) {}
+    protected open fun fetchNews(firstStoryIndex: Int, lastStoryIndex: Int, category: NewsCategory) {}
 
     protected open fun convertStoryJsonToStories(results: List<JSONObject>): List<Story> {
         return ArrayList()

@@ -27,15 +27,14 @@ abstract class NewsRoomDatabase : RoomDatabase() {
             super.onOpen(db)
             INSTANCE?.let { database ->
                 scope.launch {
-                    clearDatabase(database.storyDao())
+                    //clearDatabase(database.storyDao())
                 }
             }
         }
 
         suspend fun clearDatabase(storiesDao: StoryDao) {
             // Delete all old news here.
-            // todo test not deleting all, we want to just append
-            //storiesDao.deleteAll()
+            storiesDao.deleteAll()
         }
     }
 

@@ -29,12 +29,18 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
     /**
      * Attempts to pull a range of news stories from the API
      * */
-    public override fun fetchNews(firstStoryIndex: Int, lastStoryIndex: Int) {
+    public override fun fetchNews(firstStoryIndex: Int, lastStoryIndex: Int, category: NewsCategory) {
         // Builds a GET request to the top stories of
         // hacker news
         var storyIds: JSONArray?
         val request = Request.Builder()
-            .url(BuildConfig.URL_HACKER_NEWS_NEW)
+            .url(
+                when (category) {
+                    NewsCategory.Newest -> BuildConfig.URL_HACKER_NEWS_NEW
+                    NewsCategory.Top -> BuildConfig.URL_HACKER_NEWS_TOP
+                    else -> BuildConfig.URL_HACKER_NEWS_BEST
+                }
+            )
             .build()
 
         mClient.newCall(request).enqueue(object : Callback {
