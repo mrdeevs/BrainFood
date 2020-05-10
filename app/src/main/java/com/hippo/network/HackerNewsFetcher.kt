@@ -23,6 +23,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         const val JSON_NONE = "none"
 
         // Class constants for various news sources / API
+        // so that we can tag them later in the story view
         const val HACKER_NEWS_SOURCE = "hacker"
     }
 

@@ -38,6 +38,15 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         const val PREF_STORY_DATA_INDEX = "StoryDataIndex"
     }
 
+    /**
+     * Init everything:
+     * Create a new popup menu for news filtering
+     * Create a new http news fetcher
+     * Create a recycler view to show the main news feed
+     * Create a view model and observers to listen for data changes and update the ui
+     * Update our data index depending on stored state
+     * Fetch the latest news, or show what is cached
+     * */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.news_main)
@@ -85,12 +94,18 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         }
     }
 
+    /**
+     * Instantiate a custom menu for the news feed app bar
+     * */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.menu_news_feed, menu)
         return true
     }
 
+    /**
+     * Callback when an option is selected from the app bar i.e. filter or settings
+     * */
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         // Filter by newest, top or trending
         R.id.action_filter -> {
@@ -99,7 +114,11 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                 filterPopup.show()
             } else {
                 // We're in the middle of refreshing the feed, show a message
-                Toast.makeText(applicationContext, "Currently loading, try again later", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext,
+                    "Currently loading, try again later",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             true
         }
@@ -155,8 +174,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     }
 
     override fun onNewsAvailable(results: List<Story>) {
-        Log.e("NewsFeedActivity", "onNewsAvailable count: ${results.size}")
-
+        // Create new db records for each story
         for (newStory in results) {
             // INSERT
             // Insert new story into db
@@ -169,6 +187,10 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         showNewsList()
     }
 
+    /**
+     * This is important: storyDataIndex is the main var that tells the http fetcher which
+     * interval of stories to load
+     * */
     private fun setDataIndex(dataIndex: Int) {
         // Update existing member val
         storyDataIndex = dataIndex
@@ -190,6 +212,10 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         updateViewModelObserversFromCategory()
     }
 
+    /**
+     * Depending on the filter / category of news we're currently viewing, it will determine which
+     * list of stories we observe to get live updates for the ui
+     * */
     private fun updateViewModelObserversFromCategory() {
         // Clear off the old observers
         storiesViewModel.newStories.removeObservers(this)
