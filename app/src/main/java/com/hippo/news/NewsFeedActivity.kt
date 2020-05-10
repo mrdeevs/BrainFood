@@ -28,7 +28,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private lateinit var filterPopup: PopupMenu
     private lateinit var newsAdapter: NewsListAdapter
     private var isLoading: Boolean = false
-    private var lastStoryIndex: Int = STARTING_STORY_INDEX
+    private var curStoryIndex: Int = STARTING_STORY_INDEX
     private var feedCategory = NewsFetcher.NewsCategory.Newest
 
     companion object {
@@ -65,16 +65,16 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         storiesViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
 
         // Update who we listen to for db results
-        updateViewModelObservers()
+        updateViewModelObserversFromCategory()
 
         // Remember the last data index, so that we can allow our cached data to
         // already be loaded on fresh app restarts
-        lastStoryIndex = this.getPreferences(Context.MODE_PRIVATE)
+        curStoryIndex = this.getPreferences(Context.MODE_PRIVATE)
             .getInt(PREF_STORY_DATA_INDEX, STARTING_STORY_INDEX)
 
-        Log.e(this.localClassName, "lastStoryIndex updated (onCreate): $lastStoryIndex")
+        Log.e(this.localClassName, "lastStoryIndex updated (onCreate): $curStoryIndex")
         // Only necessary on the first run, otherwise we'll use cached data
-        if (lastStoryIndex == STARTING_STORY_INDEX) {
+        if (curStoryIndex == STARTING_STORY_INDEX) {
             Log.e(this.localClassName, "loading fetchNextNewsRange in onCreate()")
             // Make a network request to acquire all of the
             // top stories from various news outlets, and break it down into list format
@@ -165,23 +165,23 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
     private fun updateStoryDataIndex(dataIndex: Int) {
         // Update existing member val
-        lastStoryIndex = dataIndex
-        Log.e(this.localClassName, "lastStoryIndex updated: $lastStoryIndex")
+        curStoryIndex = dataIndex
+        Log.e(this.localClassName, "lastStoryIndex updated: $curStoryIndex")
 
         // Match the backing pref
         this.getPreferences(Context.MODE_PRIVATE).edit()
-            .putInt(PREF_STORY_DATA_INDEX, lastStoryIndex).apply()
+            .putInt(PREF_STORY_DATA_INDEX, curStoryIndex).apply()
     }
 
     private fun switchFeedCategory(category: NewsFetcher.NewsCategory) {
         //lastStoryIndex = -1
         updateStoryDataIndex(STARTING_STORY_INDEX)
         feedCategory = category
-        fetchNextNewsRange(lastStoryIndex + 1, hideList = true, clearDb = true)
-        updateViewModelObservers()
+        fetchNextNewsRange(curStoryIndex + 1, hideList = true, clearDb = true)
+        updateViewModelObserversFromCategory()
     }
 
-    private fun updateViewModelObservers() {
+    private fun updateViewModelObserversFromCategory() {
         // Clear off the old observers
         storiesViewModel.newStories.removeObservers(this)
         storiesViewModel.bestStories.removeObservers(this)
@@ -230,8 +230,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * */
     private fun fetchNextNewsRange(first: Int, hideList: Boolean, clearDb: Boolean) {
         //lastStoryIndex += LOADING_INTERVAL_COUNT
-        updateStoryDataIndex(lastStoryIndex + LOADING_INTERVAL_COUNT)
-        newsFetcher.fetchNews(first, lastStoryIndex, feedCategory)
+        updateStoryDataIndex(curStoryIndex + LOADING_INTERVAL_COUNT)
+        newsFetcher.fetchNews(first, curStoryIndex, feedCategory)
         isLoading = true
 
         // Show the loading bar
@@ -263,7 +263,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                         Log.e(this.javaClass.simpleName, "Bottom reached! About to load more...")
 
                         // Fetch the next range of stories
-                        fetchNextNewsRange(lastStoryIndex + 1, false, false)
+                        fetchNextNewsRange(curStoryIndex + 1, false, false)
                     }
                 }
                 // Settling: About to stop moving soon
