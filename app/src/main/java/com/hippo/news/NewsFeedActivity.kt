@@ -27,7 +27,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private lateinit var filterPopup: PopupMenu
     private lateinit var newsAdapter: NewsListAdapter
     private var isLoading: Boolean = false
-    private var lastStoryIndex = -1 // -1 is important here
+    private var lastStoryIndex = -1 // -1 is important here, always start -1
     private var feedCategory = NewsFetcher.NewsCategory.Newest
 
     companion object {
@@ -118,23 +118,15 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                         // Fetch the next range of stories
                         // Update category endpoints to Newest
                         // Update who we listen to for db results
-                        feedCategory = NewsFetcher.NewsCategory.Newest
-                        fetchNextNewsRange(lastStoryIndex + 1, true, true)
-                        updateViewModelObservers()
+                        switchFeedCategory(NewsFetcher.NewsCategory.Newest)
 
                     } else if (item.itemId == R.id.action_filter_top && feedCategory != NewsFetcher.NewsCategory.Top) {
-                        // Fetch the next range of stories
                         // Update category endpoints to Top
-                        feedCategory = NewsFetcher.NewsCategory.Top
-                        fetchNextNewsRange(lastStoryIndex + 1, true, true)
-                        updateViewModelObservers()
+                        switchFeedCategory(NewsFetcher.NewsCategory.Top)
 
                     } else if (item.itemId == R.id.action_filter_trending && feedCategory != NewsFetcher.NewsCategory.Trending) {
-                        // Fetch the next range of stories
                         // Update category endpoints to Trending
-                        feedCategory = NewsFetcher.NewsCategory.Trending
-                        fetchNextNewsRange(lastStoryIndex + 1, true, true)
-                        updateViewModelObservers()
+                        switchFeedCategory(NewsFetcher.NewsCategory.Trending)
                     }
 
                     return true
@@ -160,19 +152,43 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         showNewsList()
     }
 
+    private fun switchFeedCategory(category: NewsFetcher.NewsCategory) {
+        lastStoryIndex = -1
+        feedCategory = category
+        fetchNextNewsRange(lastStoryIndex + 1, hideList = true, clearDb = true)
+        updateViewModelObservers()
+    }
+
     private fun updateViewModelObservers() {
-        if (feedCategory == NewsFetcher.NewsCategory.Newest) {
-            // Observe the newest stories
-            storiesViewModel.newStories.observe(this, Observer { stories ->
-                // Update the cached copy of the words in the adapter.
-                stories?.let { newsAdapter.setStories(it) }
-            })
-        } else {
-            // Observe the top stories
-            storiesViewModel.topStories.observe(this, Observer { stories ->
-                // Update the cached copy of the words in the adapter.
-                stories?.let { newsAdapter.setStories(it) }
-            })
+        // Clear off the old observers
+        storiesViewModel.newStories.removeObservers(this)
+        storiesViewModel.topStories.removeObservers(this)
+
+        // Setup observer for the new data
+        when (feedCategory) {
+            NewsFetcher.NewsCategory.Newest -> {
+                // Observe the newest stories
+                storiesViewModel.newStories.observe(this, Observer { stories ->
+                    // Update the cached copy of the words in the adapter.
+                    stories?.let { newsAdapter.setStories(it) }
+                })
+            }
+
+            NewsFetcher.NewsCategory.Top -> {
+                // Observe the top stories
+                storiesViewModel.topStories.observe(this, Observer { stories ->
+                    // Update the cached copy of the words in the adapter.
+                    stories?.let { newsAdapter.setStories(it) }
+                })
+            }
+
+            NewsFetcher.NewsCategory.Trending -> {
+                // Observe the top stories
+                storiesViewModel.topStories.observe(this, Observer { stories ->
+                    // Update the cached copy of the words in the adapter.
+                    stories?.let { newsAdapter.setStories(it) }
+                })
+            }
         }
     }
 
