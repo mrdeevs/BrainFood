@@ -1,5 +1,6 @@
 package com.hippo.news
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -27,11 +28,13 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private lateinit var filterPopup: PopupMenu
     private lateinit var newsAdapter: NewsListAdapter
     private var isLoading: Boolean = false
-    private var lastStoryIndex = -1 // -1 is important here, always start -1
+    private var lastStoryIndex: Int = STARTING_STORY_INDEX
     private var feedCategory = NewsFetcher.NewsCategory.Newest
 
     companion object {
         const val LOADING_INTERVAL_COUNT = 15
+        const val STARTING_STORY_INDEX = -1
+        const val PREF_STORY_DATA_INDEX = "StoryDataIndex"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,9 +67,21 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Update who we listen to for db results
         updateViewModelObservers()
 
-        // Make a network request to acquire all of the
-        // top stories from various news outlets, and break it down into list format
-        fetchNextNewsRange(0, true, false)
+        // Remember the last data index, so that we can allow our cached data to
+        // already be loaded on fresh app restarts
+        lastStoryIndex = this.getPreferences(Context.MODE_PRIVATE)
+            .getInt(PREF_STORY_DATA_INDEX, STARTING_STORY_INDEX)
+
+        Log.e(this.localClassName, "lastStoryIndex updated (onCreate): $lastStoryIndex")
+        // Only necessary on the first run, otherwise we'll use cached data
+        if (lastStoryIndex == STARTING_STORY_INDEX) {
+            Log.e(this.localClassName, "loading fetchNextNewsRange in onCreate()")
+            // Make a network request to acquire all of the
+            // top stories from various news outlets, and break it down into list format
+            fetchNextNewsRange(0, true, false)
+        } else {
+            showNewsList()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -78,8 +93,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         // Filter by newest, top or trending
         R.id.action_filter -> {
-            // User chose to sort
-            showFilterPopup(findViewById(R.id.action_filter))
+            // User chose to sort, show the options
+            filterPopup.show()
             true
         }
 
@@ -101,8 +116,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * */
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         if (item != null) {
-
-            // Clear any existing checked items
+            // Clear any existing checked items so we can update
+            // based on state
             for (i in 0 until filterPopup.menu.size()) {
                 filterPopup.menu.getItem(i).isChecked = false
             }
@@ -148,8 +163,19 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         showNewsList()
     }
 
+    private fun updateStoryDataIndex(dataIndex: Int) {
+        // Update existing member val
+        lastStoryIndex = dataIndex
+        Log.e(this.localClassName, "lastStoryIndex updated: $lastStoryIndex")
+
+        // Match the backing pref
+        this.getPreferences(Context.MODE_PRIVATE).edit()
+            .putInt(PREF_STORY_DATA_INDEX, lastStoryIndex).apply()
+    }
+
     private fun switchFeedCategory(category: NewsFetcher.NewsCategory) {
-        lastStoryIndex = -1
+        //lastStoryIndex = -1
+        updateStoryDataIndex(STARTING_STORY_INDEX)
         feedCategory = category
         fetchNextNewsRange(lastStoryIndex + 1, hideList = true, clearDb = true)
         updateViewModelObservers()
@@ -180,10 +206,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         }
     }
 
-    private fun showFilterPopup(v: View) {
-        filterPopup.show()
-    }
-
     /**
      * Turn off the indeterminate spinner on the UI thread, and show the Recycler view list
      * */
@@ -207,7 +229,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * news outlets, and break it down into list format
      * */
     private fun fetchNextNewsRange(first: Int, hideList: Boolean, clearDb: Boolean) {
-        lastStoryIndex += LOADING_INTERVAL_COUNT
+        //lastStoryIndex += LOADING_INTERVAL_COUNT
+        updateStoryDataIndex(lastStoryIndex + LOADING_INTERVAL_COUNT)
         newsFetcher.fetchNews(first, lastStoryIndex, feedCategory)
         isLoading = true
 
@@ -231,10 +254,9 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                 // Dragging: moving
                 // RecyclerView.SCROLL_STATE_DRAGGING ->
                 // Log.e(this.javaClass.simpleName, "Dragging")
-
                 // Idle: Resting
                 RecyclerView.SCROLL_STATE_IDLE -> {
-                    Log.e(this.javaClass.simpleName, "Idle")
+                    //Log.e(this.javaClass.simpleName, "Idle")
 
                     // Check if we're at the bottom..
                     if (!recyclerView.canScrollVertically(1) && !isLoading) {
@@ -242,12 +264,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
                         // Fetch the next range of stories
                         fetchNextNewsRange(lastStoryIndex + 1, false, false)
-
-                    } else {
-                        Log.e(this.javaClass.simpleName, "Already loading or not at bottom yet...")
                     }
                 }
-
                 // Settling: About to stop moving soon
                 // RecyclerView.SCROLL_STATE_SETTLING ->
                 // Log.e(this.javaClass.simpleName, "Settling")
