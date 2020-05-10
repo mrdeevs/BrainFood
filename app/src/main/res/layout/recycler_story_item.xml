@@ -46,6 +46,8 @@
         android:layout_height="260dp"
         android:layout_marginTop="14dp"
         android:layout_marginBottom="16dp"
+        android:paddingStart="@dimen/story_item_padding_start_end"
+        android:paddingEnd="@dimen/story_item_padding_start_end"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_launcher_foreground" />
 
