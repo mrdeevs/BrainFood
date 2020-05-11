@@ -37,6 +37,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         val request = Request.Builder()
             .url(
                 when (category) {
+                    NewsCategory.Top -> BuildConfig.URL_HACKER_NEWS_TOP
                     NewsCategory.Newest -> BuildConfig.URL_HACKER_NEWS_NEW
                     else -> BuildConfig.URL_HACKER_NEWS_BEST
                 }

@@ -30,7 +30,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private lateinit var newsAdapter: NewsListAdapter
     private var isLoading: Boolean = false
     private var storyDataIndex: Int = STARTING_STORY_INDEX
-    private var feedCategory = NewsFetcher.NewsCategory.Newest
+    private var feedCategory = NewsFetcher.NewsCategory.Top
 
     companion object {
         const val LOADING_INTERVAL_COUNT = 15
@@ -149,12 +149,16 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
             // Update the checked item
             when (item.itemId) {
-                R.id.action_filter_newest, R.id.action_filter_best -> {
+                R.id.action_filter_top, R.id.action_filter_newest, R.id.action_filter_best -> {
 
                     item.isChecked = true
 
+                    if (item.itemId == R.id.action_filter_top && feedCategory != NewsFetcher.NewsCategory.Top) {
+                        // Update category endpoints to Top
+                        switchFeedCategory(NewsFetcher.NewsCategory.Top)
+                    }
                     // Filter the list for newest, clear the db and fetch new
-                    if (item.itemId == R.id.action_filter_newest && feedCategory != NewsFetcher.NewsCategory.Newest) {
+                    else if (item.itemId == R.id.action_filter_newest && feedCategory != NewsFetcher.NewsCategory.Newest) {
                         // Fetch the next range of stories
                         // Update category endpoints to Newest
                         // Update who we listen to for db results
@@ -218,11 +222,23 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * */
     private fun updateViewModelObserversFromCategory() {
         // Clear off the old observers
+        storiesViewModel.topStories.removeObservers(this)
         storiesViewModel.newStories.removeObservers(this)
         storiesViewModel.bestStories.removeObservers(this)
 
-        // Setup observer for the new data
+        // Setup observers
         when (feedCategory) {
+
+            // Observe the top aka trending aka front page stories
+            NewsFetcher.NewsCategory.Top -> {
+                // Observe the newest stories
+                storiesViewModel.topStories.observe(this, Observer { stories ->
+                    // Update the cached copy of the words in the adapter.
+                    stories?.let { newsAdapter.setStories(it) }
+                })
+            }
+
+            // Observe the new stories
             NewsFetcher.NewsCategory.Newest -> {
                 // Observe the newest stories
                 storiesViewModel.newStories.observe(this, Observer { stories ->
@@ -231,8 +247,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                 })
             }
 
+            // Observe the best stories
             NewsFetcher.NewsCategory.Best -> {
-                // Observe the top stories
                 storiesViewModel.bestStories.observe(this, Observer { stories ->
                     // Update the cached copy of the words in the adapter.
                     stories?.let { newsAdapter.setStories(it) }
@@ -264,7 +280,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * news outlets, and break it down into list format
      * */
     private fun fetchNextNewsRange(first: Int, hideList: Boolean, clearDb: Boolean) {
-        //lastStoryIndex += LOADING_INTERVAL_COUNT
         setDataIndex(storyDataIndex + LOADING_INTERVAL_COUNT)
         newsFetcher.fetchNews(first, storyDataIndex, feedCategory)
         isLoading = true
@@ -281,7 +296,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private inner class NewsScrollListener : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
-            //Log.e(this.javaClass.simpleName, "onSCrolled: dx: $dx dy: $dy")
         }
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -297,8 +311,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
                     // Check if we're at the bottom..
                     if (!recyclerView.canScrollVertically(1) && !isLoading) {
-                        Log.e(this.javaClass.simpleName, "Bottom reached! About to load more...")
-
+                        //Log.e(this.javaClass.simpleName, "Bottom reached! About to load more...")
                         // Fetch the next range of stories
                         fetchNextNewsRange(storyDataIndex + 1, false, false)
                     }

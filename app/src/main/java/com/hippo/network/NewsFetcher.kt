@@ -19,6 +19,7 @@ open class NewsFetcher(listener: NewsListener) {
     }
 
     enum class NewsCategory {
+        Top,
         Newest,
         Best
     }
