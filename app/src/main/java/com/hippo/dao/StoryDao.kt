@@ -9,7 +9,7 @@ import com.hippo.data.Story
 
 @Dao
 interface StoryDao {
-    @Query("SELECT * from stories ORDER BY time DESC")
+    @Query("SELECT * from stories ORDER BY naturalIndex ASC")
     fun getTopStories(): LiveData<List<Story>>
 
     @Query("SELECT * from stories ORDER BY time DESC")
