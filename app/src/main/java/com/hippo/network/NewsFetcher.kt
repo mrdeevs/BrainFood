@@ -11,8 +11,8 @@ import java.lang.Exception
 open class NewsFetcher(listener: NewsListener) {
 
     companion object {
-        const val MIN_PREVIEW_WIDTH = 650
-        const val MIN_PREVIEW_HEIGHT = 900
+        const val MIN_PREVIEW_WIDTH = 1000
+        const val MIN_PREVIEW_HEIGHT = 1000
         const val ATTR_WIDTH = "width"
         const val ATTR_HEIGHT = "height"
         const val ATTR_SRC = "src"
