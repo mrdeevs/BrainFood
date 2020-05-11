@@ -2,6 +2,7 @@ package com.hippo.adapter
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SizeReadyCallback
 import com.hippo.data.Story
 import com.hippo.news.NewsPreviewActivity
 import com.hippo.news.R
@@ -62,7 +64,11 @@ class NewsListAdapter internal constructor(context: Context) :
         val timeDeltaDate = Date(curTime - current.time)
         // Formatting
         holder.storyAuthorDateText.text =
-            holder.itemView.context.getString(R.string.story_author_and_date, current.by, timeDeltaDate.toString())
+            holder.itemView.context.getString(
+                R.string.story_author_and_date,
+                current.by,
+                timeDeltaDate.toString()
+            )
 
         // Async load the image URL into image view
         // Only load non-empty valid urls
@@ -71,7 +77,7 @@ class NewsListAdapter internal constructor(context: Context) :
             holder.storyImage.visibility = View.VISIBLE
             Glide.with(holder.storyImage.context)
                 .load(current.image)
-                .centerCrop()
+                .fitCenter()
                 .into(holder.storyImage)
         } else {
             // Clear the resource
