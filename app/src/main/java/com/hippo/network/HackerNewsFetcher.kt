@@ -65,10 +65,6 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                         // Convert the body to a String
                         // Convert the String into a List using comma separators
                         storyIds = JSONArray(storiesAsJson)
-                        Log.e(
-                            this.javaClass.simpleName,
-                            "storyIds full list: " + storyIds!!.toString(4)
-                        )
 
                         // Ensure list of story ids is valid and not empty
                         if (storyIds != null && storyIds!!.length() > 0) {
@@ -199,7 +195,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         // Create a new constructor of Story data class
         // Insert it into the database underneath
         try {
-            for ((index, storyJson) in results.withIndex()) {
+            for (storyJson in results) {
                 // Check for empty story json, which means its an invalid item and should be ignored
                 if (storyJson.length() > 0) {
 

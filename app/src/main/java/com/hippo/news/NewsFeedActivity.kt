@@ -11,10 +11,6 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.children
-import androidx.core.view.isEmpty
-import androidx.core.view.isNotEmpty
-import androidx.core.view.size
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
