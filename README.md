@@ -1,4 +1,4 @@
-# Brain Food: News Reader & Aggregator for Android
+# Brain Food: A News Reader & Aggregator for Android
 ## Written in Kotlin | XML
 ## 3rd Party Libraries: OkHttp, Glide, jSoup (HTML parsing)
 ## Android architecture: AndroidX, Material, Room, Lifecycle, View Model, Observers, LiveData and Co-Routines 
