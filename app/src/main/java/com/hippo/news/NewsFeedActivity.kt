@@ -11,6 +11,10 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.children
+import androidx.core.view.isEmpty
+import androidx.core.view.isNotEmpty
+import androidx.core.view.size
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +40,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         const val LOADING_INTERVAL_COUNT = 15
         const val STARTING_STORY_INDEX = -1
         const val PREF_STORY_DATA_INDEX = "StoryDataIndex"
+        const val PREF_NEWS_CATEGORY = "FeedCategory"
     }
 
     /**
@@ -52,11 +57,40 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         setContentView(R.layout.news_main)
         setSupportActionBar(findViewById(R.id.news_toolbar))
 
+        // Fetch the last data index, so that we can allow our cached data to
+        // already be loaded on fresh app restarts
+        storyDataIndex = this.getPreferences(Context.MODE_PRIVATE)
+            .getInt(PREF_STORY_DATA_INDEX, STARTING_STORY_INDEX)
+
+        var curMenuIndexSelected = 0
+
+        // Fetch the news category type to remain consistent with the current feed
+        when (this.getPreferences(Context.MODE_PRIVATE)
+            .getString(PREF_NEWS_CATEGORY, NewsFetcher.NewsCategory.Top.toString())) {
+
+            // Top
+            NewsFetcher.NewsCategory.Top.toString() -> feedCategory = NewsFetcher.NewsCategory.Top
+
+            // Newest
+            NewsFetcher.NewsCategory.Newest.toString() -> {
+                curMenuIndexSelected = 1
+                feedCategory = NewsFetcher.NewsCategory.Newest
+            }
+
+            // Best / Trending
+            NewsFetcher.NewsCategory.Best.toString() -> {
+                curMenuIndexSelected = 2
+                feedCategory = NewsFetcher.NewsCategory.Best
+            }
+        }
+
         // Filter news popup
+        // depends on feed category to set existing state
         filterPopup = PopupMenu(this, findViewById(R.id.action_filter))
         val inflater: MenuInflater = filterPopup.menuInflater
         inflater.inflate(R.menu.menu_filter_feed, filterPopup.menu)
         filterPopup.setOnMenuItemClickListener(this)
+        filterPopup.menu.getItem(curMenuIndexSelected).isChecked = true
 
         // Hacker news API fetcher
         newsFetcher = HackerNewsFetcher(this)
@@ -76,11 +110,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Update who we listen to for db results
         updateViewModelObserversFromCategory()
 
-        // Remember the last data index, so that we can allow our cached data to
-        // already be loaded on fresh app restarts
-        storyDataIndex = this.getPreferences(Context.MODE_PRIVATE)
-            .getInt(PREF_STORY_DATA_INDEX, STARTING_STORY_INDEX)
-
         // Log.e(this.localClassName, "lastStoryIndex updated (onCreate): $storyDataIndex")
         // Only necessary on the first run, otherwise we'll use cached data
         if (storyDataIndex == STARTING_STORY_INDEX) {
@@ -88,7 +117,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
             // Make a network request to acquire all of the
             // top stories from various news outlets, and break it down into list format
             fetchNextNewsRange(0, hideList = true, clearDb = false)
-
         } else {
             showNewsList()
         }
@@ -211,7 +239,15 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * */
     private fun switchFeedCategory(category: NewsFetcher.NewsCategory) {
         feedCategory = category
+
+        // Store the feed mode so we can populate menus on return
+        this.getPreferences(Context.MODE_PRIVATE).edit()
+            .putString(PREF_NEWS_CATEGORY, feedCategory.toString()).apply()
+
+        // Update the block of data we want
         setDataIndex(STARTING_STORY_INDEX)
+
+        // Fetch the news! and update observers
         fetchNextNewsRange(storyDataIndex + 1, hideList = true, clearDb = true)
         updateViewModelObserversFromCategory()
     }
