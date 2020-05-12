@@ -146,11 +146,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                 filterPopup.show()
             } else {
                 // We're in the middle of refreshing the feed, show a message
-                Toast.makeText(
-                    applicationContext,
-                    "Currently loading, try again later",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showLoadingToast()
             }
             true
         }
@@ -158,7 +154,10 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         R.id.action_refresh -> {
             // User wants to refresh the current feed
             // refresh all and clear the db
-            refreshFeed()
+            if (!isLoading)
+                refreshFeed()
+            else
+                showLoadingToast()
             true
         }
 
@@ -228,6 +227,11 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
         // Show the Recycler view list
         showNewsList()
+    }
+
+    private fun showLoadingToast() {
+        Toast.makeText(applicationContext, "Currently loading, try again later", Toast.LENGTH_SHORT)
+            .show()
     }
 
     /**
