@@ -157,7 +157,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Refresh all and clear db
         R.id.action_refresh -> {
             // User wants to refresh the current feed
-            // todo refresh all and clear the db
+            // refresh all and clear the db
+            refreshFeed()
             true
         }
 
@@ -230,6 +231,17 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     }
 
     /**
+     * Change the feed category
+     * */
+    private fun setFeedCategory(category: NewsFetcher.NewsCategory) {
+        feedCategory = category
+
+        // Store the feed mode so we can populate menus on return
+        this.getPreferences(Context.MODE_PRIVATE).edit()
+            .putString(PREF_NEWS_CATEGORY, feedCategory.toString()).apply()
+    }
+
+    /**
      * This is important: storyDataIndex is the main var that tells the http fetcher which
      * interval of stories to load
      * */
@@ -248,11 +260,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * and update which observers listen to the database and update the view model
      * */
     private fun switchFeedCategory(category: NewsFetcher.NewsCategory) {
-        feedCategory = category
-
         // Store the feed mode so we can populate menus on return
-        this.getPreferences(Context.MODE_PRIVATE).edit()
-            .putString(PREF_NEWS_CATEGORY, feedCategory.toString()).apply()
+        setFeedCategory(category)
 
         // Update the block of data we want
         setDataIndex(STARTING_STORY_INDEX)
@@ -260,6 +269,13 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Fetch the news! and update observers
         fetchNextNewsRange(storyDataIndex + 1, hideList = true, clearDb = true)
         updateViewModelObserversFromCategory()
+    }
+
+    private fun refreshFeed() {
+        // Reset the data index
+        // Fetch the news and pass in clear db
+        setDataIndex(STARTING_STORY_INDEX)
+        fetchNextNewsRange(storyDataIndex + 1, hideList = true, clearDb = true)
     }
 
     /**
