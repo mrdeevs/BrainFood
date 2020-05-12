@@ -3,7 +3,6 @@ package com.hippo.news
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -84,7 +83,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // depends on feed category to set existing state
         filterPopup = PopupMenu(this, findViewById(R.id.action_filter))
         val inflater: MenuInflater = filterPopup.menuInflater
-        inflater.inflate(R.menu.menu_filter_feed, filterPopup.menu)
+        inflater.inflate(R.menu.menu_filter, filterPopup.menu)
         filterPopup.setOnMenuItemClickListener(this)
         filterPopup.menu.getItem(curMenuIndexSelected).isChecked = true
 
@@ -146,12 +145,18 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
             }
             true
         }
-
-        R.id.action_settings -> {
-            // User wants to open settings
-            // todo open settings activity
+        // Refresh all and clear db
+        R.id.action_refresh -> {
+            // User wants to refresh the current feed
+            // todo refresh all and clear the db
             true
         }
+
+//        R.id.action_settings -> {
+//            // User wants to open settings
+//            // todo open settings activity
+//            true
+//        }
 
         else -> {
             // If we got here, the user's action was not recognized.
