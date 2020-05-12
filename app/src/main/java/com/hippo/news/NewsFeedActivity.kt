@@ -1,6 +1,8 @@
 package com.hippo.news
 
 import android.content.Context
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -10,6 +12,7 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.children
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -123,6 +126,12 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.menu_news_feed, menu)
+        // Apply a special color filter for our own branding on
+        // app toolbar icons
+        for (item in menu.children) {
+            item.icon.setColorFilter(getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP)
+        }
+
         return true
     }
 
