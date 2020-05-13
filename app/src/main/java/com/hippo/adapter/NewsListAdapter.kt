@@ -2,7 +2,6 @@ package com.hippo.adapter
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.SizeReadyCallback
 import com.hippo.data.Story
 import com.hippo.news.NewsPreviewActivity
 import com.hippo.news.R
@@ -51,38 +49,39 @@ class NewsListAdapter internal constructor(context: Context) :
     }
 
     override fun onBindViewHolder(holder: StoryViewHolder, position: Int) {
-        val current = stories[position]
+        val curStory = stories[position]
 
         // Set the title
         // Set the description text
-        holder.storyTitleText.text = current.title
-        holder.storyDescText.text = current.url
+        holder.storyTitleText.text = curStory.title
+        holder.storyDescText.text = curStory.url
 
         // Author | Timestamp
         // Convert time delta from milliseconds to seconds to hours ago
         val curTime = System.currentTimeMillis()
-        val timeDeltaDate = Date(curTime - current.time)
+        val timeDeltaDate = Date(curTime - curStory.time)
         // Formatting
         holder.storyAuthorDateText.text =
             holder.itemView.context.getString(
                 R.string.story_author_and_date,
-                current.by,
+                curStory.by,
                 timeDeltaDate.toString()
             )
 
         // Async load the image URL into image view
         // Only load non-empty valid urls
-        if (!current.image.isNullOrEmpty()) {
+        Glide.with(holder.storyImage.context).clear(holder.storyImage)
+        if (!curStory.image.isNullOrEmpty()) {
             // Turn on the image, we found a url
             holder.storyImage.visibility = View.VISIBLE
             Glide.with(holder.storyImage.context)
-                .load(current.image)
+                .load(curStory.image)
                 .fitCenter()
                 .into(holder.storyImage)
         } else {
             // Clear the resource
             // Hide the image view so the UI doesn't take up space
-            Glide.with(holder.storyImage.context).clear(holder.storyImage)
+            //Glide.with(holder.storyImage.context).clear(holder.storyImage)
             holder.storyImage.visibility = View.GONE
         }
     }
