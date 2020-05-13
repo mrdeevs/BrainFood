@@ -1,6 +1,6 @@
 # Brain Food: A News Reader & Aggregator for Android powered by Hacker News
 
-This project is a lightweight and efficient way to view the best, top, and newest stories from Hacker News for the Android platform. It supports filtering by category and refreshing. Each story item provides title, url, author, timestamp as well as attempts to show the best image possible by scraping HTML since images aren't provided in the JSON payloads
+This project is a lightweight and efficient way to view the best, top, and newest stories from Hacker News for the Android platform. It supports filtering by category and refreshing. Each story item provides title, url, author, timestamp as well as attempts to show the best image possible. Tapping into a given story will allow a fullscreen preview of the full text. I hope to add saving / liking and a settings page too along with a bunch of other features.
 
 ### - Written in Kotlin & XML
 ### - 3rd Party Libraries: OkHttp, Glide, jSoup
