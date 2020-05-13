@@ -1,4 +1,7 @@
 # Brain Food: A News Reader & Aggregator for Android powered by Hacker News
+
+Testing a little sentence here
+
 ### - Written in Kotlin & XML
 ### - 3rd Party Libraries: OkHttp, Glide, jSoup
 ### - Android architecture: AndroidX, Material, Room, Lifecycle, View Model, Observers, LiveData and Co-Routines 
