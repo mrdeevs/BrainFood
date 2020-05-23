@@ -31,16 +31,11 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
     /**
      * Attempts to pull a range of news stories from the API
      * */
-    public override fun fetchNews(
-        firstStoryIndex: Int,
-        lastStoryIndex: Int,
-        category: NewsCategory
-    ) {
+    public override fun fetchNews(firstStoryIndex: Int, lastStoryIndex: Int, category: NewsCategory) {
         // Builds a GET request to the top stories of
         // hacker news
         var storyIds: JSONArray?
-        val request = Request.Builder()
-            .url(
+        val request = Request.Builder().url(
                 when (category) {
                     NewsCategory.Top -> BuildConfig.URL_HACKER_NEWS_TOP
                     NewsCategory.Newest -> BuildConfig.URL_HACKER_NEWS_NEW
@@ -49,6 +44,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
             )
             .build()
 
+        // Make a network request for a block of story ids
         mClient.newCall(request).enqueue(object : Callback {
 
             override fun onFailure(call: Call, e: IOException) {
@@ -69,15 +65,18 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                         // Ensure list of story ids is valid and not empty
                         if (storyIds != null && storyIds!!.length() > 0) {
                             // Ensure range checking on the first and last index
-                            // Also make sure last > first
+                            // Also make sure last > first AND CORRECT the last range if its
+                            // past max by assigning it to the last possible story in the interval
+                            var adjustedLastIndex = lastStoryIndex
+                            if(adjustedLastIndex < 0 || adjustedLastIndex >= storyIds!!.length())
+                                adjustedLastIndex = storyIds!!.length() - 1
+
                             if (firstStoryIndex >= 0 && firstStoryIndex < storyIds!!.length()
-                                && lastStoryIndex >= 0 && lastStoryIndex < storyIds!!.length()
-                                && lastStoryIndex >= firstStoryIndex
-                            ) {
+                                && adjustedLastIndex >= firstStoryIndex) {
                                 // Filter down to the specified range:
                                 // [firstStoryIndex, lastStoryIndex]
                                 val filteredRange = JSONArray()
-                                for (i in firstStoryIndex..lastStoryIndex) {
+                                for (i in firstStoryIndex..adjustedLastIndex) {
                                     filteredRange.put(storyIds!![i])
                                 }
 

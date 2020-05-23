@@ -2,7 +2,7 @@ package com.hippo.network
 
 import android.util.Log
 import com.hippo.data.Story
-import com.hippo.utils.HippoUtils
+import com.hippo.utils.BrainUtils
 import okhttp3.*
 import org.json.JSONObject
 import org.jsoup.select.Elements
@@ -36,7 +36,7 @@ open class NewsFetcher(listener: NewsListener) {
 
     protected val mCallback = listener
     protected val mClient = OkHttpClient()
-    private val mUtils = HippoUtils()
+    private val mUtils = BrainUtils()
 
     protected open fun fetchNews(
         firstStoryIndex: Int,
