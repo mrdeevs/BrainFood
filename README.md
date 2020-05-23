@@ -5,6 +5,9 @@ This project is a lightweight application to view the best, top, and newest stor
 ### Written in Kotlin & XML
 ### 3rd Party Libraries: OkHttp, Glide, jSoup
 ### Android architecture: AndroidX, Material, Room, Lifecycle, View Model, Observers, LiveData and Co-Routines 
+
+#### Known Bug: Opening the application without a network connection yields an empty screen
+#### Known Bug: Image quality on some of the story items has poor resolution quality
 #### Author: Matt Devoto
 
 Do not reproduce these works without the expressed written consent of Matt Devoto
