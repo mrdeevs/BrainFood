@@ -65,7 +65,8 @@ open class NewsFetcher(listener: NewsListener) {
         // Checks if its a stock url i.e. github and return defaults
         // This saves a lot of performance
         val imgPlaceholder = getImageDefaultPlaceholder(url)
-        if (!imgPlaceholder.isEmpty()) {
+
+        if (imgPlaceholder.isNotEmpty()) {
             // Add this default place holder id to the end of the list
             // and exit early
             httpImages.add(imgPlaceholder)

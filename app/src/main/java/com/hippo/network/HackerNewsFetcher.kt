@@ -85,7 +85,6 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
 
                                 //Log.e(this.javaClass.simpleName, "story ids valid, start index: $firstStoryIndex, last index: $lastStoryIndex")
                                 fetchNewsItems(filteredRange, storyIds!!)
-
                             } else {
                                 // Indicates that an invalid range was passed in
                                 // and therefore we can't parse. Return empty
