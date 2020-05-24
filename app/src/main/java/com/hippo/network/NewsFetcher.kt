@@ -11,16 +11,21 @@ import java.lang.Exception
 open class NewsFetcher(listener: NewsListener) {
 
     companion object {
-        const val MIN_PREVIEW_WIDTH = 1250
-        const val MIN_PREVIEW_HEIGHT = 1250
+        const val MIN_PREVIEW_WIDTH = 1000
+        const val MIN_PREVIEW_HEIGHT = 1000
         const val ATTR_WIDTH = "width"
         const val ATTR_HEIGHT = "height"
         const val ATTR_SRC = "src"
 
         // Default place holder urls
         // I.e Github has a stock image and never shows images in the feed
-        val DefaultImageUrls = arrayOf("github.com")
-        val DefaultImages = arrayOf("https://github.githubassets.com/images/modules/open_graph/github-octocat.png")
+        // Needs. To. Be. Parallel.
+        val DefaultImageUrls = arrayOf("github.com", "npr.org", "medium.com")
+        val DefaultImages = arrayOf(
+            "https://github.githubassets.com/images/modules/open_graph/github-octocat.png",
+            "https://media.npr.org/assets/img/2019/06/17/nprlogo_rgb_whiteborder_custom-7c06f2837fb5d2e65e44de702968d1fdce0ce748-s800-c85.png",
+            "https://miro.medium.com/max/195/1*emiGsBgJu2KHWyjluhKXQw.png"
+        )
     }
 
     enum class NewsCategory {
