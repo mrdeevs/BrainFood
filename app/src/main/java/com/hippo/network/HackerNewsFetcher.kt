@@ -23,6 +23,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
         const val JSON_TYPE_STORY = "story"
         const val JSON_NONE = "none"
         const val JSON_NATURAL_INDEX = "natural_index"
+
         // Class constants for various news sources / API
         // so that we can tag them later in the story view
         const val HACKER_NEWS_SOURCE = "hacker"
@@ -65,9 +66,10 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                         // Ensure list of story ids is valid and not empty
                         if (storyIds != null && storyIds!!.length() > 0) {
                             // Ensure range checking on the first and last index
+                            var adjustedLastIndex = lastStoryIndex
+
                             // Also make sure last > first AND CORRECT the last range if its
                             // past max by assigning it to the last possible story in the interval
-                            var adjustedLastIndex = lastStoryIndex
                             if(adjustedLastIndex < 0 || adjustedLastIndex >= storyIds!!.length())
                                 adjustedLastIndex = storyIds!!.length() - 1
 
@@ -76,6 +78,7 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                                 // Filter down to the specified range:
                                 // [firstStoryIndex, lastStoryIndex]
                                 val filteredRange = JSONArray()
+
                                 for (i in firstStoryIndex..adjustedLastIndex) {
                                     filteredRange.put(storyIds!![i])
                                 }

@@ -10,6 +10,6 @@
     <!-- Submenu for filtering -->
     <string name="menu_feed_top">Top Stories</string>
     <string name="menu_feed_new">New Stories</string>
-    <string name="menu_feed_best">Trending Stories</string>
+    <string name="menu_feed_best">Best &amp; Trending Stories</string>
 
 </resources>

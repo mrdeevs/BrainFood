@@ -105,6 +105,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Stories view model init
         // Setup an observer to listen for data changes in the view model backing data
         storiesViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
+
         // Update who we listen to for db results
         updateViewModelObserversFromCategory()
 
@@ -359,6 +360,10 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         }
     }
 
+    /**
+     * Handles scroll events when the main news feed list is moving up and down. We use this
+     * to response to the end of list and/or load the next block of stories
+     * */
     private inner class NewsScrollListener : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
