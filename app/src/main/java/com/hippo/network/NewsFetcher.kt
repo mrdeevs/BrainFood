@@ -44,9 +44,7 @@ open class NewsFetcher(listener: NewsListener) {
     private val mUtils = BrainUtils()
 
     protected open fun fetchNews(
-        firstStoryIndex: Int,
-        lastStoryIndex: Int,
-        category: NewsCategory
+        firstStoryIndex: Int, lastStoryIndex: Int, category: NewsCategory
     ) {
     }
 

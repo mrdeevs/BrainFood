@@ -2,7 +2,6 @@ package com.hippo.news
 
 import android.content.Context
 import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -365,9 +364,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * to response to the end of list and/or load the next block of stories
      * */
     private inner class NewsScrollListener : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
-        }
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
