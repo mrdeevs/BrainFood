@@ -130,8 +130,7 @@ open class NewsFetcher(listener: NewsListener) {
                                         }
                                     }
                                 } catch (e: Exception) {
-                                    Log.e(
-                                        "NewsFetcher",
+                                    Log.d("NewsFetcher",
                                         "Exception occurred while parsing image dimensions. e: "
                                                 + e.message
                                     )

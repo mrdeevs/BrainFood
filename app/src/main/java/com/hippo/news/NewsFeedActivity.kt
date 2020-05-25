@@ -1,13 +1,14 @@
 package com.hippo.news
 
+import android.animation.AnimatorInflater
 import android.content.Context
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
@@ -29,6 +30,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private lateinit var newsFetcher: HackerNewsFetcher
     private lateinit var filterPopup: PopupMenu
     private lateinit var newsAdapter: NewsListAdapter
+    private lateinit var optionsMenu: Menu
     private var isLoading: Boolean = false
     private var storyDataIndex: Int = STARTING_STORY_INDEX
     private var feedCategory = NewsFetcher.NewsCategory.Top
@@ -126,11 +128,16 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.menu_news_feed, menu)
+
         // Apply a special color filter for our own branding on
         // app toolbar icons
         for (item in menu.children) {
             item.icon.setColorFilter(getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP)
         }
+
+        // Store a reference to our menu to perform animations
+        // and other view related tasks later
+        optionsMenu = menu
 
         return true
     }
@@ -225,8 +232,32 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
         isLoading = false
 
+        // todo - testing the new xml rotate - style drawables
+        animateRefresh(true)
+
         // Show the Recycler view list
         showNewsList()
+    }
+
+    private fun animateRefresh(animate: Boolean) {
+        runOnUiThread {
+            // Using cached menu, get a copy of the menu item drawable
+            val refreshIcon: MenuItem = optionsMenu.findItem(R.id.action_refresh)
+
+            // Load the clockwise animation from xml resource
+            // and set default values i.e. duration
+            val spinClockwise: Animation =
+                AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation)
+            spinClockwise.duration = 5000
+            spinClockwise.fillAfter = true
+            spinClockwise.repeatMode = Animation.INFINITE
+
+            // todo testing running
+            // Set the spin animation and begin
+            spinClockwise.start()
+            refreshIcon.actionView = LayoutInflater.from(this).inflate(R.layout.action_view_refresh, null)
+            refreshIcon.actionView.animation = spinClockwise
+        }
     }
 
     private fun showLoadingToast() {
