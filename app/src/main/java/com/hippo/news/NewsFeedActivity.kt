@@ -31,6 +31,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private lateinit var filterPopup: PopupMenu
     private lateinit var newsAdapter: NewsListAdapter
     private lateinit var optionsMenu: Menu
+    private lateinit var refreshAnim: Animation
+
     private var isLoading: Boolean = false
     private var storyDataIndex: Int = STARTING_STORY_INDEX
     private var feedCategory = NewsFetcher.NewsCategory.Top
@@ -55,6 +57,10 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         super.onCreate(savedInstanceState)
         setContentView(R.layout.news_main)
         setSupportActionBar(findViewById(R.id.news_toolbar))
+
+        // Load the clockwise animation from xml resource
+        // and set default values i.e. duration
+        refreshAnim = AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation)
 
         // Fetch the last data index, so that we can allow our cached data to
         // already be loaded on fresh app restarts
@@ -232,11 +238,11 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
         isLoading = false
 
-        // todo - testing the new xml rotate - style drawables
-        animateRefresh(true)
-
         // Show the Recycler view list
         showNewsList()
+
+        // Stop spinning the refresh icon
+        animateRefresh(false)
     }
 
     private fun animateRefresh(animate: Boolean) {
@@ -244,19 +250,24 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
             // Using cached menu, get a copy of the menu item drawable
             val refreshIcon: MenuItem = optionsMenu.findItem(R.id.action_refresh)
 
-            // Load the clockwise animation from xml resource
-            // and set default values i.e. duration
-            val spinClockwise: Animation =
-                AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation)
-            spinClockwise.duration = 5000
-            spinClockwise.fillAfter = true
-            spinClockwise.repeatMode = Animation.INFINITE
+            when (animate) {
+                true -> {
+                    // Set the spin animation and begin
+                    refreshAnim.start()
 
-            // todo testing running
-            // Set the spin animation and begin
-            spinClockwise.start()
-            refreshIcon.actionView = LayoutInflater.from(this).inflate(R.layout.action_view_refresh, null)
-            refreshIcon.actionView.animation = spinClockwise
+                    refreshIcon.actionView = LayoutInflater.from(this).inflate(
+                        R.layout.action_view_refresh, null
+                    )
+
+                    refreshIcon.actionView.animation = refreshAnim
+                }
+
+                false -> {
+                    refreshAnim.cancel()
+                    refreshIcon.actionView = null
+                }
+            }
+
         }
     }
 
@@ -383,6 +394,9 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
         // Show the loading bar
         showLoading(hideList)
+
+        // Animate and spin the refresh menu item
+        animateRefresh(true)
 
         // Clear the db
         if (clearDb) {
