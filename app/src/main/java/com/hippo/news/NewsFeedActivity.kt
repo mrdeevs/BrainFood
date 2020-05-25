@@ -134,13 +134,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.menu_news_feed, menu)
-
-        // Apply a special color filter for our own branding on
-        // app toolbar icons
-        for (item in menu.children) {
-            item.icon.setColorFilter(getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP)
-        }
-
         // Store a reference to our menu to perform animations
         // and other view related tasks later
         optionsMenu = menu
@@ -256,8 +249,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                     refreshAnim.start()
 
                     refreshIcon.actionView = LayoutInflater.from(this).inflate(
-                        R.layout.action_view_refresh, null
-                    )
+                        R.layout.action_view_refresh, null)
 
                     refreshIcon.actionView.animation = refreshAnim
                 }
