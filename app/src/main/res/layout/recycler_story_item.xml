@@ -46,8 +46,7 @@
         android:layout_height="260dp"
         android:layout_marginTop="14dp"
         android:layout_marginBottom="16dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_launcher_foreground" />
+        android:src="@drawable/brain_logo" />
 
     <TextView
         android:id="@+id/story_item_description"
