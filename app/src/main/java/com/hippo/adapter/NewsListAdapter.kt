@@ -44,7 +44,7 @@ class NewsListAdapter internal constructor(context: Context) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {
-        val itemView = inflater.inflate(R.layout.recycler_story_item, parent, false)
+        val itemView = inflater.inflate(R.layout.news_story_item, parent, false)
         return StoryViewHolder(itemView)
     }
 

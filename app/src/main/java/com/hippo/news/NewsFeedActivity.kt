@@ -24,13 +24,12 @@ import com.hippo.network.NewsFetcher
 import com.hippo.viewmodel.StoryViewModel
 
 class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
-    PopupMenu.OnMenuItemClickListener {
+    PopupMenu.OnMenuItemClickListener, View.OnClickListener {
 
     private lateinit var storiesViewModel: StoryViewModel
     private lateinit var newsFetcher: HackerNewsFetcher
     private lateinit var filterPopup: PopupMenu
     private lateinit var newsAdapter: NewsListAdapter
-    private lateinit var optionsMenu: Menu
     private lateinit var refreshAnim: Animation
 
     private var isLoading: Boolean = false
@@ -56,7 +55,10 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.news_main)
-        setSupportActionBar(findViewById(R.id.news_toolbar))
+
+        // OnClicks
+        findViewById<ImageView>(R.id.news_toolbar_refresh).setOnClickListener(this)
+        findViewById<ImageView>(R.id.news_toolbar_filter).setOnClickListener(this)
 
         // Load the clockwise animation from xml resource
         // and set default values i.e. duration
@@ -75,13 +77,11 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
             // Top
             NewsFetcher.NewsCategory.Top.toString() -> feedCategory = NewsFetcher.NewsCategory.Top
-
             // Newest
             NewsFetcher.NewsCategory.Newest.toString() -> {
                 curMenuIndexSelected = 1
                 feedCategory = NewsFetcher.NewsCategory.Newest
             }
-
             // Best / Trending
             NewsFetcher.NewsCategory.Best.toString() -> {
                 curMenuIndexSelected = 2
@@ -91,7 +91,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
         // Filter news popup
         // depends on feed category to set existing state
-        filterPopup = PopupMenu(this, findViewById(R.id.action_filter))
+        filterPopup = PopupMenu(this, findViewById(R.id.news_toolbar_filter))
         val inflater: MenuInflater = filterPopup.menuInflater
         inflater.inflate(R.menu.menu_filter, filterPopup.menu)
         filterPopup.setOnMenuItemClickListener(this)
@@ -128,55 +128,26 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         }
     }
 
-    /**
-     * Instantiate a custom menu for the news feed app bar
-     * */
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater: MenuInflater = menuInflater
-        inflater.inflate(R.menu.menu_news_feed, menu)
-        // Store a reference to our menu to perform animations
-        // and other view related tasks later
-        optionsMenu = menu
-
-        return true
-    }
-
-    /**
-     * Callback when an option is selected from the app bar i.e. filter or settings
-     * */
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        // Filter by newest, top or trending
-        R.id.action_filter -> {
-            if (!isLoading) {
-                // User chose to sort, show the options
-                filterPopup.show()
-            } else {
-                // We're in the middle of refreshing the feed, show a message
-                showLoadingToast()
+    override fun onClick(p0: View?) {
+        when(p0?.id) {
+            R.id.news_toolbar_refresh -> {
+                // User wants to refresh the current feed
+                // refresh all and clear the db
+                if (!isLoading)
+                    refreshFeed()
+                else
+                    showLoadingToast()
             }
-            true
-        }
-        // Refresh all and clear db
-        R.id.action_refresh -> {
-            // User wants to refresh the current feed
-            // refresh all and clear the db
-            if (!isLoading)
-                refreshFeed()
-            else
-                showLoadingToast()
-            true
-        }
 
-//        R.id.action_settings -> {
-//            // User wants to open settings
-//            // todo open settings activity
-//            true
-//        }
-
-        else -> {
-            // If we got here, the user's action was not recognized.
-            // Invoke the superclass to handle it.
-            super.onOptionsItemSelected(item)
+            R.id.news_toolbar_filter -> {
+                if (!isLoading) {
+                    // User chose to sort, show the options
+                    filterPopup.show()
+                } else {
+                    // We're in the middle of refreshing the feed, show a message
+                    showLoadingToast()
+                }
+            }
         }
     }
 
@@ -241,25 +212,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private fun animateRefresh(animate: Boolean) {
         runOnUiThread {
             // Using cached menu, get a copy of the menu item drawable
-            val refreshIcon: MenuItem = optionsMenu.findItem(R.id.action_refresh)
-
-            when (animate) {
-                true -> {
-                    // Set the spin animation and begin
-                    refreshAnim.start()
-
-                    refreshIcon.actionView = LayoutInflater.from(this).inflate(
-                        R.layout.action_view_refresh, null)
-
-                    refreshIcon.actionView.animation = refreshAnim
-                }
-
-                false -> {
-                    refreshAnim.cancel()
-                    refreshIcon.actionView = null
-                }
-            }
-
+            val refreshIcon: ImageView = findViewById(R.id.news_toolbar_refresh)
         }
     }
 
