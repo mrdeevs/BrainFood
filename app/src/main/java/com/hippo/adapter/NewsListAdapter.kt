@@ -44,7 +44,7 @@ class NewsListAdapter internal constructor(context: Context) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {
-        val itemView = inflater.inflate(R.layout.recycler_story_item, parent, false)
+        val itemView = inflater.inflate(R.layout.news_story_item, parent, false)
         return StoryViewHolder(itemView)
     }
 
@@ -71,6 +71,7 @@ class NewsListAdapter internal constructor(context: Context) :
         // Async load the image URL into image view
         // Only load non-empty valid urls
         Glide.with(holder.storyImage.context).clear(holder.storyImage)
+
         if (!curStory.image.isNullOrEmpty()) {
             // Turn on the image, we found a url
             holder.storyImage.visibility = View.VISIBLE

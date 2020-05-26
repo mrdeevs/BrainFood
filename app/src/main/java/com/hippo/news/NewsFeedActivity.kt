@@ -1,18 +1,15 @@
 package com.hippo.news
 
 import android.content.Context
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.children
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,12 +21,15 @@ import com.hippo.network.NewsFetcher
 import com.hippo.viewmodel.StoryViewModel
 
 class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
-    PopupMenu.OnMenuItemClickListener {
+    PopupMenu.OnMenuItemClickListener, View.OnClickListener {
 
     private lateinit var storiesViewModel: StoryViewModel
     private lateinit var newsFetcher: HackerNewsFetcher
     private lateinit var filterPopup: PopupMenu
     private lateinit var newsAdapter: NewsListAdapter
+    private lateinit var refreshIcon: ImageView
+    private lateinit var refreshAnim: Animation
+
     private var isLoading: Boolean = false
     private var storyDataIndex: Int = STARTING_STORY_INDEX
     private var feedCategory = NewsFetcher.NewsCategory.Top
@@ -53,7 +53,15 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.news_main)
-        setSupportActionBar(findViewById(R.id.news_toolbar))
+
+        // OnClicks
+        refreshIcon = findViewById(R.id.news_toolbar_refresh)
+        refreshIcon.setOnClickListener(this)
+        findViewById<ImageView>(R.id.news_toolbar_filter).setOnClickListener(this)
+
+        // Load the clockwise animation from xml resource
+        // and set default values. Start off in the stopped state
+        refreshAnim = AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation)
 
         // Fetch the last data index, so that we can allow our cached data to
         // already be loaded on fresh app restarts
@@ -68,13 +76,11 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
             // Top
             NewsFetcher.NewsCategory.Top.toString() -> feedCategory = NewsFetcher.NewsCategory.Top
-
             // Newest
             NewsFetcher.NewsCategory.Newest.toString() -> {
                 curMenuIndexSelected = 1
                 feedCategory = NewsFetcher.NewsCategory.Newest
             }
-
             // Best / Trending
             NewsFetcher.NewsCategory.Best.toString() -> {
                 curMenuIndexSelected = 2
@@ -84,7 +90,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
         // Filter news popup
         // depends on feed category to set existing state
-        filterPopup = PopupMenu(this, findViewById(R.id.action_filter))
+        filterPopup = PopupMenu(this, findViewById(R.id.news_toolbar_filter))
         val inflater: MenuInflater = filterPopup.menuInflater
         inflater.inflate(R.menu.menu_filter, filterPopup.menu)
         filterPopup.setOnMenuItemClickListener(this)
@@ -121,57 +127,26 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         }
     }
 
-    /**
-     * Instantiate a custom menu for the news feed app bar
-     * */
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        val inflater: MenuInflater = menuInflater
-        inflater.inflate(R.menu.menu_news_feed, menu)
-        // Apply a special color filter for our own branding on
-        // app toolbar icons
-        for (item in menu.children) {
-            item.icon.setColorFilter(getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP)
-        }
-
-        return true
-    }
-
-    /**
-     * Callback when an option is selected from the app bar i.e. filter or settings
-     * */
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        // Filter by newest, top or trending
-        R.id.action_filter -> {
-            if (!isLoading) {
-                // User chose to sort, show the options
-                filterPopup.show()
-            } else {
-                // We're in the middle of refreshing the feed, show a message
-                showLoadingToast()
+    override fun onClick(clickedView: View?) {
+        when(clickedView?.id) {
+            R.id.news_toolbar_refresh -> {
+                // User wants to refresh the current feed
+                // refresh all and clear the db
+                if (!isLoading)
+                    refreshFeed()
+                else
+                    showLoadingToast()
             }
-            true
-        }
-        // Refresh all and clear db
-        R.id.action_refresh -> {
-            // User wants to refresh the current feed
-            // refresh all and clear the db
-            if (!isLoading)
-                refreshFeed()
-            else
-                showLoadingToast()
-            true
-        }
 
-//        R.id.action_settings -> {
-//            // User wants to open settings
-//            // todo open settings activity
-//            true
-//        }
-
-        else -> {
-            // If we got here, the user's action was not recognized.
-            // Invoke the superclass to handle it.
-            super.onOptionsItemSelected(item)
+            R.id.news_toolbar_filter -> {
+                if (!isLoading) {
+                    // User chose to sort, show the options
+                    filterPopup.show()
+                } else {
+                    // We're in the middle of refreshing the feed, show a message
+                    showLoadingToast()
+                }
+            }
         }
     }
 
@@ -228,6 +203,19 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
         // Show the Recycler view list
         showNewsList()
+
+        // Stop spinning the refresh icon
+        animateRefresh(false)
+    }
+
+    private fun animateRefresh(animate: Boolean) {
+        runOnUiThread {
+            if (animate) {
+                refreshIcon.startAnimation(refreshAnim)
+            } else {
+                refreshIcon.clearAnimation()
+            }
+        }
     }
 
     private fun showLoadingToast() {
@@ -354,6 +342,9 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Show the loading bar
         showLoading(hideList)
 
+        // Animate and spin the refresh menu item
+        animateRefresh(true)
+
         // Clear the db
         if (clearDb) {
             storiesViewModel.deleteAll()
@@ -365,9 +356,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * to response to the end of list and/or load the next block of stories
      * */
     private inner class NewsScrollListener : RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
-        }
 
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
@@ -384,7 +372,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                     if (!recyclerView.canScrollVertically(1) && !isLoading) {
                         //Log.e(this.javaClass.simpleName, "Bottom reached! About to load more...")
                         // Fetch the next range of stories
-                        fetchNextNewsRange(storyDataIndex + 1, false, false)
+                        fetchNextNewsRange(storyDataIndex + 1, hideList = false, clearDb = false)
                     }
                 }
                 // Settling: About to stop moving soon
