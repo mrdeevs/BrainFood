@@ -372,7 +372,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                     if (!recyclerView.canScrollVertically(1) && !isLoading) {
                         //Log.e(this.javaClass.simpleName, "Bottom reached! About to load more...")
                         // Fetch the next range of stories
-                        fetchNextNewsRange(storyDataIndex + 1, false, false)
+                        fetchNextNewsRange(storyDataIndex + 1, hideList = false, clearDb = false)
                     }
                 }
                 // Settling: About to stop moving soon
