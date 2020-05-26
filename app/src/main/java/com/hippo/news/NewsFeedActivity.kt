@@ -1,8 +1,6 @@
 package com.hippo.news
 
-import android.animation.AnimatorInflater
 import android.content.Context
-import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.*
@@ -12,7 +10,6 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.children
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,6 +27,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private lateinit var newsFetcher: HackerNewsFetcher
     private lateinit var filterPopup: PopupMenu
     private lateinit var newsAdapter: NewsListAdapter
+    private lateinit var refreshIcon: ImageView
     private lateinit var refreshAnim: Animation
 
     private var isLoading: Boolean = false
@@ -57,11 +55,12 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         setContentView(R.layout.news_main)
 
         // OnClicks
-        findViewById<ImageView>(R.id.news_toolbar_refresh).setOnClickListener(this)
+        refreshIcon = findViewById(R.id.news_toolbar_refresh)
+        refreshIcon.setOnClickListener(this)
         findViewById<ImageView>(R.id.news_toolbar_filter).setOnClickListener(this)
 
         // Load the clockwise animation from xml resource
-        // and set default values i.e. duration
+        // and set default values. Start off in the stopped state
         refreshAnim = AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation)
 
         // Fetch the last data index, so that we can allow our cached data to
@@ -128,8 +127,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         }
     }
 
-    override fun onClick(p0: View?) {
-        when(p0?.id) {
+    override fun onClick(clickedView: View?) {
+        when(clickedView?.id) {
             R.id.news_toolbar_refresh -> {
                 // User wants to refresh the current feed
                 // refresh all and clear the db
@@ -211,8 +210,11 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
     private fun animateRefresh(animate: Boolean) {
         runOnUiThread {
-            // Using cached menu, get a copy of the menu item drawable
-            val refreshIcon: ImageView = findViewById(R.id.news_toolbar_refresh)
+            if (animate) {
+                refreshIcon.startAnimation(refreshAnim)
+            } else {
+                refreshIcon.clearAnimation()
+            }
         }
     }
 
