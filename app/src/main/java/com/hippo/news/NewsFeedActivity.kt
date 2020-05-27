@@ -326,7 +326,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         runOnUiThread {
             findViewById<ProgressBar>(R.id.news_feed_progress).visibility = View.VISIBLE
             if (hideList)
-                findViewById<RecyclerView>(R.id.news_recycler_view).visibility = View.GONE
+                findViewById<RecyclerView>(R.id.news_recycler_view).visibility = View.INVISIBLE
         }
     }
 
