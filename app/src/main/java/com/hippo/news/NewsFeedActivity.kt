@@ -70,17 +70,22 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
         var curMenuIndexSelected = 0
 
+        // TODO: convert preference data management into a class
+        // and convert this method into a utility that can convert a news category enum to an index
+        //
         // Fetch the news category type to remain consistent with the current feed
         when (this.getPreferences(Context.MODE_PRIVATE)
             .getString(PREF_NEWS_CATEGORY, NewsFetcher.NewsCategory.Top.toString())) {
 
             // Top
             NewsFetcher.NewsCategory.Top.toString() -> feedCategory = NewsFetcher.NewsCategory.Top
+
             // Newest
             NewsFetcher.NewsCategory.Newest.toString() -> {
                 curMenuIndexSelected = 1
                 feedCategory = NewsFetcher.NewsCategory.Newest
             }
+
             // Best / Trending
             NewsFetcher.NewsCategory.Best.toString() -> {
                 curMenuIndexSelected = 2
@@ -115,7 +120,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Update who we listen to for db results
         updateViewModelObserversFromCategory()
 
-        // Log.e(this.localClassName, "lastStoryIndex updated (onCreate): $storyDataIndex")
         // Only necessary on the first run, otherwise we'll use cached data
         if (storyDataIndex == STARTING_STORY_INDEX) {
             //Log.e(this.localClassName, "loading fetchNextNewsRange in onCreate()")
@@ -194,7 +198,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     override fun onNewsAvailable(results: List<Story>) {
         // Create new db records for each story
         for (newStory in results) {
-            // INSERT
             // Insert new story into db
             storiesViewModel.insert(newStory)
         }
@@ -219,7 +222,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     }
 
     private fun showLoadingToast() {
-        Toast.makeText(applicationContext, "Currently loading, try again later", Toast.LENGTH_SHORT)
+        Toast.makeText(applicationContext, "Currently refreshing, try again after", Toast.LENGTH_SHORT)
             .show()
     }
 
@@ -334,7 +337,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
             }
 
             // Show the logo if we're hiding the list
-            // Hide the logo if the list is present
+            // Hide the logo if the list is present (inverse of list)
             findViewById<ImageView>(R.id.news_feed_logo).visibility =
                 if (hideList) View.VISIBLE
                 else View.INVISIBLE
