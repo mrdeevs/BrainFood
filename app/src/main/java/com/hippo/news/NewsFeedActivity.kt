@@ -29,6 +29,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     private lateinit var newsAdapter: NewsListAdapter
     private lateinit var refreshIcon: ImageView
     private lateinit var refreshAnim: Animation
+    private lateinit var logoAnim: Animation
 
     private var isLoading: Boolean = false
     private var storyDataIndex: Int = STARTING_STORY_INDEX
@@ -61,7 +62,9 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
         // Load the clockwise animation from xml resource
         // and set default values. Start off in the stopped state
+        // Also load alpha animation for logo
         refreshAnim = AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation)
+        logoAnim = AnimationUtils.loadAnimation(this, R.anim.fade_alpha)
 
         // Fetch the last data index, so that we can allow our cached data to
         // already be loaded on fresh app restarts
@@ -195,6 +198,10 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         return false
     }
 
+    /**
+     * This interface callback is invoked after our NewsFetcher finishes
+     * loading the latest stories, for the given feed category, via HTTP
+     * */
     override fun onNewsAvailable(results: List<Story>) {
         // Create new db records for each story
         for (newStory in results) {
@@ -208,10 +215,10 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         showNewsList()
 
         // Stop spinning the refresh icon
-        animateRefresh(false)
+        spinRefresh(false)
     }
 
-    private fun animateRefresh(animate: Boolean) {
+    private fun spinRefresh(animate: Boolean) {
         runOnUiThread {
             if (animate) {
                 refreshIcon.startAnimation(refreshAnim)
@@ -221,8 +228,26 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         }
     }
 
+    private fun animateLogo(animate: Boolean) {
+        runOnUiThread {
+            val logo = findViewById<ImageView>(R.id.news_feed_logo)
+
+            // Change the logo visibility
+            logo.visibility = if (animate) View.VISIBLE else View.INVISIBLE
+
+            // Start the logo animation
+            if (animate) {
+                logo.startAnimation(logoAnim)
+            } else {
+                logo.clearAnimation()
+            }
+        }
+    }
+
     private fun showLoadingToast() {
-        Toast.makeText(applicationContext, "Currently refreshing, try again after", Toast.LENGTH_SHORT)
+        Toast.makeText(
+            applicationContext,
+            "Currently refreshing, try again after", Toast.LENGTH_SHORT)
             .show()
     }
 
@@ -322,7 +347,9 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         runOnUiThread {
             findViewById<ProgressBar>(R.id.news_feed_progress).visibility = View.GONE
             findViewById<RecyclerView>(R.id.news_recycler_view).visibility = View.VISIBLE
-            findViewById<ImageView>(R.id.news_feed_logo).visibility = View.INVISIBLE
+            // Logo visibility
+            // Stop the animation
+            animateLogo(false)
         }
     }
 
@@ -338,9 +365,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
             // Show the logo if we're hiding the list
             // Hide the logo if the list is present (inverse of list)
-            findViewById<ImageView>(R.id.news_feed_logo).visibility =
-                if (hideList) View.VISIBLE
-                else View.INVISIBLE
+            animateLogo(hideList)
         }
     }
 
@@ -357,7 +382,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         showLoading(hideNewsList)
 
         // Animate and spin the refresh menu item
-        animateRefresh(true)
+        spinRefresh(true)
 
         // Clear the db
         if (clearDb) {
@@ -375,13 +400,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
             super.onScrollStateChanged(recyclerView, newState)
 
             when (newState) {
-                // Dragging: moving
-                // RecyclerView.SCROLL_STATE_DRAGGING ->
-                // Log.e(this.javaClass.simpleName, "Dragging")
                 // Idle: Resting
                 RecyclerView.SCROLL_STATE_IDLE -> {
-                    //Log.e(this.javaClass.simpleName, "Idle")
-
                     // Check if we're at the bottom..
                     if (!recyclerView.canScrollVertically(1) && !isLoading) {
                         //Log.e(this.javaClass.simpleName, "Bottom reached! About to load more...")
@@ -389,9 +409,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                         fetchNextNewsRange(storyDataIndex + 1, hideNewsList = false, clearDb = false)
                     }
                 }
-                // Settling: About to stop moving soon
-                // RecyclerView.SCROLL_STATE_SETTLING ->
-                // Log.e(this.javaClass.simpleName, "Settling")
             }
         }
     }
