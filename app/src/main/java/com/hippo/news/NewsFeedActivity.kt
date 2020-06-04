@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.*
 import android.view.animation.Animation
+import android.view.animation.AnimationSet
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -64,7 +65,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // and set default values. Start off in the stopped state
         // Also load alpha animation for logo
         refreshAnim = AnimationUtils.loadAnimation(this, R.anim.clockwise_rotation)
-        logoAnim = AnimationUtils.loadAnimation(this, R.anim.fade_alpha)
+        logoAnim = AnimationUtils.loadAnimation(this, R.anim.fade_in_and_out)
 
         // Fetch the last data index, so that we can allow our cached data to
         // already be loaded on fresh app restarts
