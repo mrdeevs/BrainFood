@@ -121,7 +121,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
             //Log.e(this.localClassName, "loading fetchNextNewsRange in onCreate()")
             // Make a network request to acquire all of the
             // top stories from various news outlets, and break it down into list format
-            fetchNextNewsRange(0, hideList = true, clearDb = false)
+            fetchNextNewsRange(0, hideNewsList = true, clearDb = false)
         } else {
             showNewsList()
         }
@@ -260,7 +260,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         setDataIndex(STARTING_STORY_INDEX)
 
         // Fetch the news! and update observers
-        fetchNextNewsRange(storyDataIndex + 1, hideList = true, clearDb = true)
+        fetchNextNewsRange(storyDataIndex + 1, hideNewsList = true, clearDb = true)
         updateViewModelObserversFromCategory()
     }
 
@@ -268,7 +268,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Reset the data index
         // Fetch the news and pass in clear db
         setDataIndex(STARTING_STORY_INDEX)
-        fetchNextNewsRange(storyDataIndex + 1, hideList = true, clearDb = true)
+        fetchNextNewsRange(storyDataIndex + 1, hideNewsList = true, clearDb = true)
     }
 
     /**
@@ -319,14 +319,25 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         runOnUiThread {
             findViewById<ProgressBar>(R.id.news_feed_progress).visibility = View.GONE
             findViewById<RecyclerView>(R.id.news_recycler_view).visibility = View.VISIBLE
+            findViewById<ImageView>(R.id.news_feed_logo).visibility = View.INVISIBLE
         }
     }
 
     private fun showLoading(hideList: Boolean) {
         runOnUiThread {
+            // Always show the loading progress
             findViewById<ProgressBar>(R.id.news_feed_progress).visibility = View.VISIBLE
-            if (hideList)
+
+            // Optional: hide the main news feed list
+            if (hideList) {
                 findViewById<RecyclerView>(R.id.news_recycler_view).visibility = View.INVISIBLE
+            }
+
+            // Show the logo if we're hiding the list
+            // Hide the logo if the list is present
+            findViewById<ImageView>(R.id.news_feed_logo).visibility =
+                if (hideList) View.VISIBLE
+                else View.INVISIBLE
         }
     }
 
@@ -334,13 +345,13 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * Make a network request to acquire all of the top stories from various
      * news outlets, and break it down into list format
      * */
-    private fun fetchNextNewsRange(first: Int, hideList: Boolean, clearDb: Boolean) {
+    private fun fetchNextNewsRange(first: Int, hideNewsList: Boolean, clearDb: Boolean) {
         setDataIndex(storyDataIndex + LOADING_INTERVAL_COUNT)
         newsFetcher.fetchNews(first, storyDataIndex, feedCategory)
         isLoading = true
 
         // Show the loading bar
-        showLoading(hideList)
+        showLoading(hideNewsList)
 
         // Animate and spin the refresh menu item
         animateRefresh(true)
@@ -372,7 +383,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                     if (!recyclerView.canScrollVertically(1) && !isLoading) {
                         //Log.e(this.javaClass.simpleName, "Bottom reached! About to load more...")
                         // Fetch the next range of stories
-                        fetchNextNewsRange(storyDataIndex + 1, hideList = false, clearDb = false)
+                        fetchNextNewsRange(storyDataIndex + 1, hideNewsList = false, clearDb = false)
                     }
                 }
                 // Settling: About to stop moving soon
