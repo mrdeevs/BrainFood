@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.*
 import android.view.animation.Animation
-import android.view.animation.AnimationSet
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -74,9 +73,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
         var curMenuIndexSelected = 0
 
-        // TODO: convert preference data management into a class
-        // and convert this method into a utility that can convert a news category enum to an index
-        //
         // Fetch the news category type to remain consistent with the current feed
         when (this.getPreferences(Context.MODE_PRIVATE)
             .getString(PREF_NEWS_CATEGORY, NewsFetcher.NewsCategory.Top.toString())) {
