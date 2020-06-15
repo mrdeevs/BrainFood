@@ -1,7 +1,7 @@
 package com.hippo.network
 
 import android.util.Log
-import com.hippo.data.Story
+import com.hippo.data.entities.Story
 import com.hippo.news.BuildConfig
 import okhttp3.*
 import okio.IOException
@@ -237,7 +237,6 @@ class HackerNewsFetcher(listener: NewsListener) : NewsFetcher(listener) {
                         // Ensure a valid Unique ID
                         // Ensure a valid story type
                         if (urlJson != JSON_NONE) {
-                            // todo add optional checks for unique id, by, time, title, type
                             // img. url path
                             // EXPENSIVE.. wow
                             val imgSrc = extractImagesFromStoryUrl(urlJson)

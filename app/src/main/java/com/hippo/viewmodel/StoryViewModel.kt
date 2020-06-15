@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.hippo.data.NewsRepository
-import com.hippo.data.Story
+import com.hippo.data.entities.Story
 import com.hippo.data.database.NewsRoomDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,7 +31,7 @@ class StoryViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Launching a new co-routine to insert a story in a non-blocking way
+     * Launching a new co-routine to insert a story to the main DB in a non-blocking way
      */
     fun insert(story: Story) = viewModelScope.launch(Dispatchers.IO) {
         repository.insert(story)

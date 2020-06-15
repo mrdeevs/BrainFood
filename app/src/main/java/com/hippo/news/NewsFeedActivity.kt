@@ -15,15 +15,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hippo.adapter.NewsListAdapter
-import com.hippo.data.Story
+import com.hippo.data.entities.Story
 import com.hippo.network.HackerNewsFetcher
 import com.hippo.network.NewsFetcher
+import com.hippo.viewmodel.SavedViewModel
 import com.hippo.viewmodel.StoryViewModel
 
 class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     PopupMenu.OnMenuItemClickListener, View.OnClickListener {
 
     private lateinit var storiesViewModel: StoryViewModel
+    private lateinit var savedViewModel: SavedViewModel
     private lateinit var newsFetcher: HackerNewsFetcher
     private lateinit var filterPopup: PopupMenu
     private lateinit var newsAdapter: NewsListAdapter
@@ -116,6 +118,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Stories view model init
         // Setup an observer to listen for data changes in the view model backing data
         storiesViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
+        savedViewModel = ViewModelProvider(this).get(SavedViewModel::class.java)
 
         // Update who we listen to for db results
         updateViewModelObserversFromCategory()

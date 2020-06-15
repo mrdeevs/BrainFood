@@ -5,16 +5,21 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.hippo.dao.SavedDao
 import com.hippo.dao.StoryDao
-import com.hippo.data.Story
+import com.hippo.data.entities.SavedStory
+import com.hippo.data.entities.Story
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-// Annotates class to be a Room Database with a table (entity) of the Story class
-@Database(entities = [Story::class], version = 1, exportSchema = false)
+// Annotates class to be a Room Database with
+// a table (entity) of the Story class
+// SavedStory represents liked stories
+@Database(entities = [Story::class, SavedStory::class], version = 1, exportSchema = false)
 abstract class NewsRoomDatabase : RoomDatabase() {
 
     abstract fun storyDao(): StoryDao
+    abstract fun savedStoryDao(): SavedDao
 
     /**
      * Used to override the onOpen callback when our database has been created
@@ -26,16 +31,14 @@ abstract class NewsRoomDatabase : RoomDatabase() {
         override fun onOpen(db: SupportSQLiteDatabase) {
             super.onOpen(db)
             INSTANCE?.let { database ->
-                scope.launch {
-                    //clearDatabase(database.storyDao())
-                }
+                scope.launch {}
             }
         }
 
-        suspend fun clearDatabase(storiesDao: StoryDao) {
+        /*suspend fun clearDatabase(storiesDao: StoryDao) {
             // Delete all old news here.
             storiesDao.deleteAll()
-        }
+        }*/
     }
 
     companion object {

@@ -1,7 +1,7 @@
 package com.hippo.network
 
 import android.util.Log
-import com.hippo.data.Story
+import com.hippo.data.entities.Story
 import com.hippo.utils.BrainUtils
 import okhttp3.*
 import org.json.JSONObject

@@ -7,19 +7,17 @@ import com.hippo.data.entities.Story
 
 // Declares the DAO as a private property in the constructor. Pass in the DAO
 // instead of the whole database, because you only need access to the DAO
-class NewsRepository(private val storyDao: StoryDao) {
+class SavedRepository(private val savedDao: SavedDao) {
 
     // Room executes all queries on a separate thread.
     // Observed LiveData will notify the observer when the data has changed.
-    val topStories: LiveData<List<Story>> = storyDao.getTopStories()
-    val newStories: LiveData<List<Story>> = storyDao.getNewestStories()
-    val bestStories: LiveData<List<Story>> = storyDao.getBestStories()
+    val savedStories: LiveData<List<Story>> = savedDao.getSavedStories()
 
     suspend fun insert(story: Story) {
-        storyDao.insert(story)
+        savedDao.insert(story)
     }
 
     suspend fun deleteAll() {
-        storyDao.deleteAll()
+        savedDao.deleteAll()
     }
 }

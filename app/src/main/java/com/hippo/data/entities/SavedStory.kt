@@ -1,11 +1,11 @@
-package com.hippo.data
+package com.hippo.data.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "stories")
-data class Story(
+@Entity(tableName = "saved_stories")
+data class SavedStory(
     @PrimaryKey var storyId: Int,
     var by: String?,
     var descendants: Int,

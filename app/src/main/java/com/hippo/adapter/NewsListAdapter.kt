@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.hippo.data.Story
+import com.hippo.data.entities.Story
 import com.hippo.news.NewsPreviewActivity
 import com.hippo.news.R
 import java.util.*
