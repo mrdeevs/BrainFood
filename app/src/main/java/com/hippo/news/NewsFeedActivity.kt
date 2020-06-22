@@ -37,13 +37,19 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
     private var isLoading: Boolean = false
     private var storyDataIndex: Int = STARTING_STORY_INDEX
-    private var feedCategory = NewsFetcher.NewsCategory.Top
+    private var newsCategory = NewsFetcher.NewsCategory.Top
+    private var feedMode = FeedMode.News
 
     companion object {
         const val LOADING_INTERVAL_COUNT = 15
         const val STARTING_STORY_INDEX = -1
         const val PREF_STORY_DATA_INDEX = "StoryDataIndex"
         const val PREF_NEWS_CATEGORY = "FeedCategory"
+    }
+
+    enum class FeedMode {
+        News,
+        Saved
     }
 
     /**
@@ -84,18 +90,18 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
             .getString(PREF_NEWS_CATEGORY, NewsFetcher.NewsCategory.Top.toString())) {
 
             // Top
-            NewsFetcher.NewsCategory.Top.toString() -> feedCategory = NewsFetcher.NewsCategory.Top
+            NewsFetcher.NewsCategory.Top.toString() -> newsCategory = NewsFetcher.NewsCategory.Top
 
             // Newest
             NewsFetcher.NewsCategory.Newest.toString() -> {
                 curMenuIndexSelected = 1
-                feedCategory = NewsFetcher.NewsCategory.Newest
+                newsCategory = NewsFetcher.NewsCategory.Newest
             }
 
             // Best / Trending
             NewsFetcher.NewsCategory.Best.toString() -> {
                 curMenuIndexSelected = 2
-                feedCategory = NewsFetcher.NewsCategory.Best
+                newsCategory = NewsFetcher.NewsCategory.Best
             }
         }
 
@@ -162,20 +168,14 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                 }
             }
 
-            // Show saved stories
+            // Change the current feed mode to saved / liked
             R.id.news_footer_brain -> {
-                // Testing get all saved
-                savedViewModel.getAllSaved(object : SavedViewModel.SavedStoryListener {
-                    override fun onSavedAvailable(savedStories: List<SavedStory>) {
-                        runOnUiThread {
-                            newsAdapter.setSavedStories(savedStories)
-                        }
-                    }
-                })
+                setFeedMode(FeedMode.Saved)
             }
 
+            // Change the current feed mode to news
             R.id.news_footer_newspaper -> {
-                Log.e(NewsFeedActivity::class.simpleName, "home-paper footer clicked")
+                setFeedMode(FeedMode.News)
             }
         }
     }
@@ -217,20 +217,20 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
                     item.isChecked = true
 
-                    if (item.itemId == R.id.action_filter_top && feedCategory != NewsFetcher.NewsCategory.Top) {
+                    if (item.itemId == R.id.action_filter_top && newsCategory != NewsFetcher.NewsCategory.Top) {
                         // Update category endpoints to Top
-                        switchFeedCategory(NewsFetcher.NewsCategory.Top)
+                        switchNewsCategory(NewsFetcher.NewsCategory.Top)
                     }
                     // Filter the list for newest, clear the db and fetch new
-                    else if (item.itemId == R.id.action_filter_newest && feedCategory != NewsFetcher.NewsCategory.Newest) {
+                    else if (item.itemId == R.id.action_filter_newest && newsCategory != NewsFetcher.NewsCategory.Newest) {
                         // Fetch the next range of stories
                         // Update category endpoints to Newest
                         // Update who we listen to for db results
-                        switchFeedCategory(NewsFetcher.NewsCategory.Newest)
+                        switchNewsCategory(NewsFetcher.NewsCategory.Newest)
 
-                    } else if (item.itemId == R.id.action_filter_best && feedCategory != NewsFetcher.NewsCategory.Best) {
+                    } else if (item.itemId == R.id.action_filter_best && newsCategory != NewsFetcher.NewsCategory.Best) {
                         // Update category endpoints to Top
-                        switchFeedCategory(NewsFetcher.NewsCategory.Best)
+                        switchNewsCategory(NewsFetcher.NewsCategory.Best)
                     }
 
                     return true
@@ -297,12 +297,12 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
     /**
      * Change the feed category
      * */
-    private fun setFeedCategory(category: NewsFetcher.NewsCategory) {
-        feedCategory = category
+    private fun setNewsCategory(category: NewsFetcher.NewsCategory) {
+        newsCategory = category
 
         // Store the feed mode so we can populate menus on return
         this.getPreferences(Context.MODE_PRIVATE).edit()
-            .putString(PREF_NEWS_CATEGORY, feedCategory.toString()).apply()
+            .putString(PREF_NEWS_CATEGORY, newsCategory.toString()).apply()
     }
 
     /**
@@ -318,18 +318,48 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
             .putInt(PREF_STORY_DATA_INDEX, storyDataIndex).apply()
     }
 
+    private fun setFeedMode(mode: FeedMode) {
+        feedMode = mode
+
+        val refresh : ImageView = findViewById(R.id.news_toolbar_refresh)
+        val filter : ImageView = findViewById(R.id.news_toolbar_filter)
+
+        when (mode) {
+            FeedMode.News -> {
+                // Turn ON refresh and filter UI for news
+                refresh.visibility = View.VISIBLE
+                filter.visibility = View.VISIBLE
+                // Open the existing news feed that is cached
+                switchNewsCategory(newsCategory)
+            }
+
+            FeedMode.Saved -> {
+                savedViewModel.getAllSaved(object : SavedViewModel.SavedStoryListener {
+                    override fun onSavedAvailable(savedStories: List<SavedStory>) {
+                        runOnUiThread {
+                            // Turn OFF refresh and filter UI for saved
+                            refresh.visibility = View.INVISIBLE
+                            filter.visibility = View.INVISIBLE
+                            // Update the news feed list
+                            newsAdapter.setSavedStories(savedStories)
+                        }
+                    }
+                })
+            }
+        }
+    }
+
     /**
      * When changing feeds from i.e. new stories to best/trending stories,
      * we need to change the feed type, reset the data index for retrieving stories,
      * and update which observers listen to the database and update the view model
      * */
-    private fun switchFeedCategory(category: NewsFetcher.NewsCategory) {
+    private fun switchNewsCategory(category: NewsFetcher.NewsCategory) {
         // Store the feed mode so we can populate menus on return
-        setFeedCategory(category)
+        setNewsCategory(category)
 
         // Update the block of data we want
         setDataIndex(STARTING_STORY_INDEX)
-
         // Fetch the news! and update observers
         fetchNextNewsRange(storyDataIndex + 1, hideNewsList = true, clearDb = true)
         updateViewModelObserversFromCategory()
@@ -353,7 +383,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         storiesViewModel.bestStories.removeObservers(this)
 
         // Setup observers
-        when (feedCategory) {
+        when (newsCategory) {
 
             // Observe the top aka trending aka front page stories
             NewsFetcher.NewsCategory.Top -> {
@@ -418,7 +448,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
      * */
     private fun fetchNextNewsRange(first: Int, hideNewsList: Boolean, clearDb: Boolean) {
         setDataIndex(storyDataIndex + LOADING_INTERVAL_COUNT)
-        newsFetcher.fetchNews(first, storyDataIndex, feedCategory)
+        newsFetcher.fetchNews(first, storyDataIndex, newsCategory)
         isLoading = true
 
         // Show the loading bar
@@ -446,7 +476,11 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                 // Idle: Resting
                 RecyclerView.SCROLL_STATE_IDLE -> {
                     // Check if we're at the bottom..
-                    if (!recyclerView.canScrollVertically(1) && !isLoading) {
+                    // Do NOT allow a refresh if we're already loading
+                    // Only allow news refresh in non-saved mode!
+                    if (!recyclerView.canScrollVertically(1)
+                        && !isLoading
+                        && feedMode == FeedMode.News) {
                         //Log.e(this.javaClass.simpleName, "Bottom reached! About to load more...")
                         // Fetch the next range of stories
                         fetchNextNewsRange(storyDataIndex + 1, hideNewsList = false, clearDb = false)

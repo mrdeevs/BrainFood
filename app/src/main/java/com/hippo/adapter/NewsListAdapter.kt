@@ -142,8 +142,8 @@ class NewsListAdapter internal constructor(context: Context,
                 )
             }
 
-            this.stories = convertedList
-            notifyDataSetChanged()
+            // update
+            setStories(convertedList)
         }
     }
 
