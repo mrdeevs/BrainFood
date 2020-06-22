@@ -40,6 +40,5 @@ class SavedViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun getAllSaved() = viewModelScope.launch(Dispatchers.IO) {
         val saved: List<SavedStory> = repository.getAllSaved()
-        Log.e("TAG", "saved size: " + saved.size)
     }
 }
