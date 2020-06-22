@@ -9,10 +9,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.hippo.data.entities.SavedStory
 import com.hippo.data.entities.Story
 import com.hippo.news.NewsPreviewActivity
 import com.hippo.news.R
 import java.util.*
+import kotlin.collections.ArrayList
 
 class NewsListAdapter internal constructor(context: Context,
                                            storyViewListener: StoryViewHolderListener) :
@@ -120,6 +122,29 @@ class NewsListAdapter internal constructor(context: Context,
     internal fun setStories(updateStories: List<Story>) {
         this.stories = updateStories
         notifyDataSetChanged()
+    }
+
+    internal fun setSavedStories(updateStories: List<SavedStory>) {
+        if (updateStories.isNotEmpty()) {
+            val convertedList = ArrayList<Story>()
+            for (story in updateStories) {
+                convertedList.add(
+                    Story(
+                        story.storyId,
+                        story.by, story.descendants,
+                        story.id, story.score,
+                        story.time, story.title,
+                        story.type, story.url,
+                        story.source,
+                        story.image,
+                        0
+                    )
+                )
+            }
+
+            this.stories = convertedList
+            notifyDataSetChanged()
+        }
     }
 
     override fun getItemCount() = stories.size

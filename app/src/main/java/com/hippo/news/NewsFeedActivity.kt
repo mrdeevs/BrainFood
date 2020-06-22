@@ -63,6 +63,8 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         refreshIcon = findViewById(R.id.news_toolbar_refresh)
         refreshIcon.setOnClickListener(this)
         findViewById<ImageView>(R.id.news_toolbar_filter).setOnClickListener(this)
+        findViewById<ImageView>(R.id.news_footer_newspaper).setOnClickListener(this)
+        findViewById<ImageView>(R.id.news_footer_brain).setOnClickListener(this)
 
         // Load the clockwise animation from xml resource
         // and set default values. Start off in the stopped state
@@ -139,6 +141,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
 
     override fun onClick(clickedView: View?) {
         when(clickedView?.id) {
+            // Refresh
             R.id.news_toolbar_refresh -> {
                 // User wants to refresh the current feed
                 // refresh all and clear the db
@@ -148,6 +151,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                     showLoadingToast()
             }
 
+            // Change filter mode
             R.id.news_toolbar_filter -> {
                 if (!isLoading) {
                     // User chose to sort, show the options
@@ -156,6 +160,22 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                     // We're in the middle of refreshing the feed, show a message
                     showLoadingToast()
                 }
+            }
+
+            // Show saved stories
+            R.id.news_footer_brain -> {
+                // Testing get all saved
+                savedViewModel.getAllSaved(object : SavedViewModel.SavedStoryListener {
+                    override fun onSavedAvailable(savedStories: List<SavedStory>) {
+                        runOnUiThread {
+                            newsAdapter.setSavedStories(savedStories)
+                        }
+                    }
+                })
+            }
+
+            R.id.news_footer_newspaper -> {
+                Log.e(NewsFeedActivity::class.simpleName, "home-paper footer clicked")
             }
         }
     }
@@ -174,9 +194,6 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
             result.url,
             result.source,
             result.image))
-
-        // Testing get all saved
-        savedViewModel.getAllSaved()
     }
 
     override fun onStoryShareClicked(result: Story) {

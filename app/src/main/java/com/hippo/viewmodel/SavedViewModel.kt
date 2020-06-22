@@ -1,12 +1,9 @@
 package com.hippo.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.hippo.data.SavedRepository
-import com.hippo.data.entities.Story
 import com.hippo.data.database.NewsRoomDatabase
 import com.hippo.data.entities.SavedStory
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +12,10 @@ import kotlinx.coroutines.launch
 class SavedViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: SavedRepository
+
+    interface SavedStoryListener {
+        fun onSavedAvailable(savedStories : List<SavedStory>)
+    }
 
     init {
         val savedDao = NewsRoomDatabase.getDatabase(application, viewModelScope).savedStoryDao()
@@ -38,7 +39,7 @@ class SavedViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Launching a new co-routine to GET all saved database entries
      */
-    fun getAllSaved() = viewModelScope.launch(Dispatchers.IO) {
-        val saved: List<SavedStory> = repository.getAllSaved()
+    fun getAllSaved(listener : SavedStoryListener) = viewModelScope.launch(Dispatchers.IO) {
+        listener.onSavedAvailable(repository.getAllSaved())
     }
 }

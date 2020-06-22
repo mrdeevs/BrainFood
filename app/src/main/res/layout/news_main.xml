@@ -29,7 +29,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@android:color/white"
-        android:padding="100dp"
+        android:padding="140dp"
         android:scaleType="centerInside"
         android:src="@drawable/brain_logo"
         android:visibility="visible"
