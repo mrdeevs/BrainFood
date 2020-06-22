@@ -14,11 +14,18 @@ import com.hippo.news.NewsPreviewActivity
 import com.hippo.news.R
 import java.util.*
 
-class NewsListAdapter internal constructor(context: Context) :
+class NewsListAdapter internal constructor(context: Context,
+                                           storyViewListener: StoryViewHolderListener) :
     RecyclerView.Adapter<NewsListAdapter.StoryViewHolder>() {
+
+    interface StoryViewHolderListener {
+        fun onStorySaveClicked(result: Story)
+        fun onStoryShareClicked(result: Story)
+    }
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     private var stories = emptyList<Story>() // Cached copy of words
+    private var storyListener = storyViewListener
 
     inner class StoryViewHolder(storyView: View) : RecyclerView.ViewHolder(storyView),
         View.OnClickListener {
@@ -27,19 +34,42 @@ class NewsListAdapter internal constructor(context: Context) :
         val storyDescText: TextView = storyView.findViewById(R.id.story_item_description)
         val storyAuthorDateText: TextView = storyView.findViewById(R.id.story_item_author_date)
         val storyImage: ImageView = storyView.findViewById(R.id.story_item_image)
+        val saveIcon: ImageView = storyView.findViewById(R.id.story_item_save)
+        val shareIcon: ImageView = storyView.findViewById(R.id.story_item_share)
 
         init {
             // View holders handle their own events
-            storyView.setOnClickListener(this)
+            storyImage.setOnClickListener(this)
+            storyTitleText.setOnClickListener(this)
+            saveIcon.setOnClickListener(this)
+            shareIcon.setOnClickListener(this)
         }
 
         override fun onClick(v: View) {
-            // Open the preview activity
-            // to view the story in full
-            val context = itemView.context
-            val showPhotoIntent = Intent(context, NewsPreviewActivity::class.java)
-            showPhotoIntent.putExtra(NewsPreviewActivity.KEY_URL, stories[adapterPosition].url)
-            context.startActivity(showPhotoIntent)
+            when (v.id) {
+                R.id.story_item_image, R.id.story_item_title -> {
+                    // Story Clicked for viewing
+                    // Open the preview activity
+                    // to view the story in full
+                    val context = itemView.context
+                    val showPhotoIntent = Intent(context, NewsPreviewActivity::class.java)
+                    showPhotoIntent.putExtra(
+                        NewsPreviewActivity.KEY_URL,
+                        stories[adapterPosition].url
+                    )
+                    context.startActivity(showPhotoIntent)
+                }
+
+                // Save
+                R.id.story_item_save -> {
+                    storyListener.onStorySaveClicked(stories[adapterPosition])
+                }
+
+                // Share
+                R.id.story_item_share -> {
+                    storyListener.onStoryShareClicked(stories[adapterPosition])
+                }
+            }
         }
     }
 

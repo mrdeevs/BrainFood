@@ -3,6 +3,7 @@ package com.hippo.news
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -15,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hippo.adapter.NewsListAdapter
+import com.hippo.data.entities.SavedStory
 import com.hippo.data.entities.Story
 import com.hippo.network.HackerNewsFetcher
 import com.hippo.network.NewsFetcher
@@ -22,7 +24,7 @@ import com.hippo.viewmodel.SavedViewModel
 import com.hippo.viewmodel.StoryViewModel
 
 class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
-    PopupMenu.OnMenuItemClickListener, View.OnClickListener {
+    PopupMenu.OnMenuItemClickListener, View.OnClickListener, NewsListAdapter.StoryViewHolderListener {
 
     private lateinit var storiesViewModel: StoryViewModel
     private lateinit var savedViewModel: SavedViewModel
@@ -110,7 +112,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Adapter and layout manager
         // Add a scroll listener here
         val recyclerView = findViewById<RecyclerView>(R.id.news_recycler_view)
-        newsAdapter = NewsListAdapter(this)
+        newsAdapter = NewsListAdapter(this, this)
         recyclerView.adapter = newsAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.addOnScrollListener(NewsScrollListener())
@@ -118,6 +120,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
         // Stories view model init
         // Setup an observer to listen for data changes in the view model backing data
         storiesViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
+        // Instantiate a view model to insert liked stories
         savedViewModel = ViewModelProvider(this).get(SavedViewModel::class.java)
 
         // Update who we listen to for db results
@@ -155,6 +158,29 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                 }
             }
         }
+    }
+
+    override fun onStorySaveClicked(result: Story) {
+        // Create a saved story from a regular story
+        savedViewModel.insert(SavedStory(
+            result.storyId,
+            result.by,
+            result.descendants,
+            result.id,
+            result.score,
+            result.time,
+            result.title,
+            result.type,
+            result.url,
+            result.source,
+            result.image))
+
+        // Testing get all saved
+        savedViewModel.getAllSaved()
+    }
+
+    override fun onStoryShareClicked(result: Story) {
+        Toast.makeText(applicationContext, "Share is coming soon!", Toast.LENGTH_SHORT).show()
     }
 
     /**

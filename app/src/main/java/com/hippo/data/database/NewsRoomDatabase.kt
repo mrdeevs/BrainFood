@@ -61,9 +61,7 @@ abstract class NewsRoomDatabase : RoomDatabase() {
                     context.applicationContext,
                     NewsRoomDatabase::class.java,
                     "news_database"
-                )
-                    .addCallback(NewsRoomDatabaseCallback(scope))
-                    .build()
+                ).addCallback(NewsRoomDatabaseCallback(scope)).build()
 
                 INSTANCE = instance
                 return instance

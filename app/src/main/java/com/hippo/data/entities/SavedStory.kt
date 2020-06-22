@@ -16,6 +16,5 @@ data class SavedStory(
     var type: String?,
     var url: String?,
     var source: String?,
-    var image: String?,
-    var naturalIndex: Int
+    var image: String?
 )
