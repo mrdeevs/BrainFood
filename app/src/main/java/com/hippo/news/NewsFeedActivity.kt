@@ -342,7 +342,7 @@ class NewsFeedActivity : AppCompatActivity(), NewsFetcher.NewsListener,
                             filter.visibility = View.INVISIBLE
                             // Update the news feed list
                             newsAdapter.setSavedStories(savedStories)
-                        }
+                        } 
                     }
                 })
             }
